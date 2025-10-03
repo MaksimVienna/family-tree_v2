@@ -16,7 +16,7 @@
     "PlaceBirth": "Palatka, Magadan region, Russia",
     "PlaceNow": "Sokol, Magadan region, Russia",
     "Occupation": "Science, engineering",
-    "Photo": "leonid.png"
+    "Photo": "id1-leonid.png"
   },
   {
     "PersonID": 2,
@@ -35,7 +35,7 @@
     "PlaceBirth": "Halle, Germany",
     "PlaceNow": "Sokol, Magadan region, Russia",
     "Occupation": "Teaching",
-    "Photo": "elena.png"
+    "Photo": "id2-elena.png"
   },
   {
     "PersonID": 3,
@@ -54,7 +54,7 @@
     "PlaceBirth": "Palatka, Magadan region, Russia",
     "PlaceNow": "Sankt-Peterburg, Russia",
     "Occupation": "Science, engineering",
-    "Photo": "sergey.png"
+    "Photo": "id3-sergey.png"
   },
   {
     "PersonID": 4,
@@ -92,7 +92,7 @@
     "PlaceBirth": "Palatka, Magadan region, Russia",
     "PlaceNow": "Villach, Austria",
     "Occupation": "Science, engineering",
-    "Photo": "ms.png"
+    "Photo": "id5-maksim.png"
   },
   {
     "PersonID": 6,
@@ -111,7 +111,7 @@
     "PlaceBirth": "Petropavlovsk, Kazahstan",
     "PlaceNow": "Villach, Austria",
     "Occupation": "Homemaker",
-    "Photo": "sophia.png"
+    "Photo": "id6-sophia.png"
   },
   {
     "PersonID": 7,
@@ -130,7 +130,7 @@
     "PlaceBirth": "Novosibirsk, Russia",
     "PlaceNow": "Villach, Austria",
     "Occupation": "",
-    "Photo": ""
+    "Photo": "id7-sviatik.png"
   },
   {
     "PersonID": 8,
@@ -206,7 +206,7 @@
     "PlaceBirth": "",
     "PlaceNow": "Barnaul, Russia",
     "Occupation": "",
-    "Photo": "milana.png"
+    "Photo": "id11-milana.png"
   },
   {
     "PersonID": 12,
@@ -548,7 +548,7 @@
     "PlaceBirth": "",
     "PlaceNow": "",
     "Occupation": "",
-    "Photo": ""
+    "Photo": "id29-lilina.png"
   },
   {
     "PersonID": 30,
@@ -586,7 +586,7 @@
     "PlaceBirth": "",
     "PlaceNow": "",
     "Occupation": "",
-    "Photo": ""
+    "Photo": "id31-sofia.png"
   },
   {
     "PersonID": 32,
@@ -605,7 +605,7 @@
     "PlaceBirth": "",
     "PlaceNow": "",
     "Occupation": "",
-    "Photo": ""
+    "Photo": "id32-vasilii.png"
   },
   {
     "PersonID": 33,
@@ -624,7 +624,7 @@
     "PlaceBirth": "",
     "PlaceNow": "",
     "Occupation": "",
-    "Photo": ""
+    "Photo": "id33-fedor.png"
   },
   {
     "PersonID": 34,
@@ -643,7 +643,7 @@
     "PlaceBirth": "",
     "PlaceNow": "",
     "Occupation": "",
-    "Photo": ""
+    "Photo": "id34-lelia.png"
   },
   {
     "PersonID": 35,
@@ -662,7 +662,7 @@
     "PlaceBirth": "",
     "PlaceNow": "",
     "Occupation": "",
-    "Photo": ""
+    "Photo": "id35-nikolay.png"
   },
   {
     "PersonID": 36,
@@ -719,7 +719,7 @@
     "PlaceBirth": "",
     "PlaceNow": "",
     "Occupation": "",
-    "Photo": ""
+    "Photo": "id38-ivan.png"
   },
   {
     "PersonID": 39,
@@ -965,8 +965,8 @@
     "Generation": 1,
     "PlaceBirth": "",
     "PlaceNow": "",
-    "Occupation": "",
-    "Photo": ""
+    "Occupation": "Фотография Каземира сделана  в г. Ровны в 1928 году",
+    "Photo": "id51-kazimir.png"
   },
   {
     "PersonID": 52,
@@ -985,7 +985,7 @@
     "PlaceBirth": "",
     "PlaceNow": "",
     "Occupation": "Наша мама о нём отзывалась как об очень мудром и умном человеком.",
-    "Photo": ""
+    "Photo": "id52-fedor.png"
   },
   {
     "PersonID": 53,
