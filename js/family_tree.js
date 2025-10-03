@@ -28,11 +28,12 @@ const SPOUSE_COLOR = "#555"; // Dark Gray
 const genSpacing = 150;
 const yOffset = 10;
 const spouseOffset = 60;
-const nodeRadius = 20;
+const nodeRadius = 25; // Increased radius to 25 (making images 50x50) for better visibility
 // Base length for sibling vertical connection lines (used for grouping)
 const baseLineLength = nodeRadius * 1.55; 
 const groupIndexFactor = 0.28;
 const siblingGap = spouseOffset * 2; // Kept for reference, but shifting logic is removed
+const textMargin = 15; // Margin for text placement below the image
 
 d3.json("data/family_data.json").then(data => {
 
@@ -190,7 +191,8 @@ d3.json("data/family_data.json").then(data => {
             const desiredX = parentXs.reduce((a,b)=>a+b,0)/parentXs.length;
 
             // Collision check
-            const minSpacing = nodeRadius * 2;
+            // Use 2 * nodeRadius + textHeight as minSpacing
+            const minSpacing = nodeRadius * 2 + 5; 
             let safeX = desiredX;
             let iteration = 0;
             // Check for collision with *any* other node in the generation
@@ -294,10 +296,41 @@ d3.json("data/family_data.json").then(data => {
         .attr("class","node")
         .attr("transform", d => `translate(${d.x},${d.y})`);
 
-    nodeGroup.append("circle").attr("r", nodeRadius);
+    // Define Clip Path for Circular Image Mask
+    // This allows the rectangular image to be perfectly masked into a circle shape
+    nodeGroup.append("defs").append("clipPath")
+        .attr("id", d => `clip-${d.PersonID}`)
+        .append("circle")
+        .attr("r", nodeRadius);
+
+    // Draw the Image (clipped to a circle)
+    const imageSize = nodeRadius * 2; // 50x50 pixels
+    const placeholderUrl = `https://placehold.co/${imageSize}x${imageSize}/cccccc/333333?text=?`;
+
+    nodeGroup.append("image")
+        // Use the Photo field, setting the full path to the 'images/' folder
+        .attr("xlink:href", d => d.Photo ? `images/${d.Photo}` : placeholderUrl)
+        .attr("x", -nodeRadius) // Center the image horizontally
+        .attr("y", -nodeRadius) // Center the image vertically
+        .attr("width", imageSize)
+        .attr("height", imageSize)
+        .attr("clip-path", d => `url(#clip-${d.PersonID})`) // Apply the circular clip path
+        .attr("preserveAspectRatio", "xMidYMid slice"); // Ensure the image covers the circle
+        
+    // Draw a Circle Border around the image
+    nodeGroup.append("circle")
+        .attr("r", nodeRadius)
+        .attr("fill", "none") 
+        .attr("stroke", d => d.Gender === 'M' ? '#1E90FF' : '#DC143C') // Border color based on gender
+        .attr("stroke-width", 3);
+
+    // Draw Name Text below the node
+    const textYOffset = nodeRadius + textMargin; // Position is 40px (25 + 15) below the center
+
     nodeGroup.append("text")
-        .attr("dy", 5)
+        .attr("y", textYOffset) 
         .attr("text-anchor", "middle")
+        .attr("class", "node-name") 
         .text(d => d['Name-ru']); 
         
     // ------------------------------
