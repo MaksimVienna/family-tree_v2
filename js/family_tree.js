@@ -317,7 +317,7 @@ d3.json("data/family_data.json").then(data => {
     // 6b. Add the Image element, clipped by the circle
     nodeGroup.append("image")
         // UPDATED: Prepend '/images/' to the photo filename for correct pathing.
-        .attr("xlink:href", d => d.Photo && d.Photo !== "" ? `/images/${d.Photo}` : `https://placehold.co/${nodeRadius*2}x${nodeRadius*2}/bbbbbb/333333?text=?`)
+        .attr("xlink:href", d => d.Photo && d.Photo !== "" ? `images/${d.Photo}` : `https://placehold.co/${nodeRadius*2}x${nodeRadius*2}/bbbbbb/333333?text=?`)
         .attr("clip-path", d => `url(#clip-${d.PersonID})`)
         .attr("x", -nodeRadius)
         .attr("y", -nodeRadius)
