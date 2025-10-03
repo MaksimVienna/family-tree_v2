@@ -1,0 +1,80 @@
+/* General Body and Layout */
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+svg {
+    border: 1px solid #ccc;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Nodes (people) */
+.node circle {
+  fill: lightblue;
+  stroke: steelblue;
+  stroke-width: 2px;
+  transition: all 0.2s ease;
+}
+
+/* Specific Gender Colors */
+.node circle.male {
+    fill: #81D4FA; /* Light Blue */
+    stroke: #0288D1; /* Darker Blue */
+}
+.node circle.female {
+    fill: #F48FB1; /* Light Pink */
+    stroke: #D81B60; /* Darker Pink */
+}
+.node circle.unknown {
+    fill: #CFD8DC; /* Light Gray */
+    stroke: #607D8B; /* Darker Gray */
+}
+
+
+/* Node labels */
+.node text {
+  font: 12px sans-serif;
+  text-anchor: middle;
+  pointer-events: none;
+  fill: #333;
+}
+
+/* Parent-child links */
+.link.parental {
+  stroke: #555;
+  stroke-width: 2px;
+}
+
+/* Spouse links (red dashed) */
+.link.spouse {
+  stroke: red;
+  stroke-width: 2px;
+  stroke-dasharray: 4 2;
+}
+
+/* Optional: hover effect */
+.node:hover circle {
+  fill: orange;
+  cursor: pointer;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
+}
+
+/* Extra text for IDs */
+.node-id {
+    font-size: 10px;
+    fill: #888;
+}
