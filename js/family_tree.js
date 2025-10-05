@@ -1,367 +1,275 @@
-const svg = d3.select("svg");
-const width = +svg.attr("width");
-const height = +svg.attr("height");
+    // ==================== CONFIGURABLE CONSTANTS ====================
+    const CONFIG = {
+        NODE_RADIUS: 20,                 // Node circle radius
+        BASE_Y_UNIT: 150,                // Vertical spacing per generation
+        PARTNER_LINE_COLOR: "#444",      // Horizontal partner line color
+        PARTNER_LINE_WIDTH: 2,
+        PARENT_LINE_COLOR: "#888",       // Curved lines (siblings + parents)
+        PARENT_LINE_WIDTH: 2,
+        CURVE_OFFSET_FACTOR: 0.5,        // Fraction of vertical distance used as Bézier control offset
+    };
 
-// Apply styles to the SVG container to ensure it takes up the full space 
-// and has a visible background for zooming
-svg.style("background-color", "#f8f8f8")
-   .style("display", "block");
+    // ==================== SVG SETUP ====================
+    const svg = d3.select("svg");
+    const width = +svg.attr("width");
+    const height = +svg.attr("height");
 
-// Create a group element (g) to hold all the tree elements (nodes and lines).
-// This group is what will be transformed by the zoom behavior.
-const g = svg.append("g"); 
+    svg.style("background-color", "#f8f8f8")
+    .style("display", "block");
 
-// --- COLOR PALETTE DEFINITION ---
-// Colors for distinct sibling groups (will cycle through this list)
-const SIBLING_COLORS = [
-    "#FF8C00", // DarkOrange
-    "#1E90FF", // DodgerBlue
-    "#3CB371", // MediumSeaGreen
-    "#9932CC"  // DarkOrchid
-];
-// Color for individual children (no siblings)
-const INDIVIDUAL_CHILD_COLOR = "#DC143C"; // Crimson Red
-// Color for spouse connections
-const SPOUSE_COLOR = "#555"; // Dark Gray
+    const g = svg.append("g");
 
-// Layout settings
-const genSpacing = 150;
-const yOffset = 10;
-const spouseOffset = 60;
-const nodeRadius = 20;
-// Base length for sibling vertical connection lines (used for grouping)
-const baseLineLength = nodeRadius * 1.55; 
-const groupIndexFactor = 0.28;
-const siblingGap = spouseOffset * 2; // Kept for reference, but shifting logic is removed
+    // ==================== LAYOUT FUNCTION ====================
+    const applyFinalLayout = (data, width) => {
+        return new Promise(resolve => {
+            const orderScript = document.createElement("script");
+            orderScript.src = "data/manual_order.js";
 
-d3.json("data/family_data.json").then(data => {
+            const coordsScript = document.createElement("script");
+            coordsScript.src = "data/final_x_coordinates.js";
 
-    // ----------------------------------------------------
-    // --- 1. Initialization and Data Mapping ---
-    // ----------------------------------------------------
-    const idMap = {};
-    data.forEach(d => { idMap[d.PersonID] = d; });
-    data.forEach(d => { d.y = +d.Generation * genSpacing + yOffset; });
+            let orderLoaded = false;
+            let coordsLoaded = false;
 
-    // Group nodes by generation
-    const genGroups = {};
-    data.forEach(d => {
-        if (!genGroups[d.Generation]) genGroups[d.Generation] = [];
-        genGroups[d.Generation].push(d);
-    });
+            const tryBuild = () => {
+                if (!orderLoaded || !coordsLoaded) return;
+                if (typeof manualOrderFull === "undefined" || typeof finalXCoordinates === "undefined") {
+                    console.error("manualOrderFull or finalXCoordinates not found.");
+                    resolve({ data, maxLayoutX: width, maxLayoutY: 0 });
+                    return;
+                }
 
-    // ------------------------------
-    // --- 2. Assign X positions (Automatic Mode Only: Partners first) ---
-    // ------------------------------
-    const assigned = new Set();
+                // Compute global X scale
+                let allX = [];
+                for (const gen in finalXCoordinates) allX = allX.concat(finalXCoordinates[gen]);
+                const minX = d3.min(allX);
+                const maxX = d3.max(allX);
 
-    for (let gen in genGroups) {
-        const nodes = genGroups[gen];
-        
-        // Automatic mode
-        let xCounter = 1;
-        const spacing = width / (nodes.length + 1);
+                const scaleX = d3.scaleLinear()
+                    .domain([minX, maxX])
+                    .range([CONFIG.NODE_RADIUS * 2, width - CONFIG.NODE_RADIUS * 2]);
 
-        // 1. Partners first (ensuring lower ID is processed first)
-        nodes.forEach(d => {
-            if (assigned.has(d.PersonID)) return;
-            if (d.PartnerID && idMap[d.PartnerID] && +d.PersonID < +d.PartnerID) {
-                const partner = idMap[d.PartnerID];
-                d.x = spacing * xCounter++;
-                partner.x = d.x + spouseOffset;
-                xCounter++;
-                assigned.add(d.PersonID);
-                assigned.add(partner.PersonID);
-            }
+                // Assign coordinates per generation using manual order
+                const genGroups = d3.group(data, d => d.Generation);
+                for (const [gen, nodes] of genGroups.entries()) {
+                    const orderedIds = manualOrderFull[gen];
+                    const coords = finalXCoordinates[gen];
+                    if (!orderedIds || !coords) continue;
+
+                    const count = Math.min(orderedIds.length, coords.length);
+                    for (let i = 0; i < count; i++) {
+                        const id = orderedIds[i];
+                        const person = nodes.find(n => n.PersonID.toString() === id.toString());
+                        if (!person) continue;
+
+                        person.x = scaleX(coords[i]);
+                        person.y = +person.Generation * CONFIG.BASE_Y_UNIT + CONFIG.NODE_RADIUS;
+                        person.r = CONFIG.NODE_RADIUS;
+                    }
+                }
+
+                const maxLayoutX = width;
+                const maxLayoutY = d3.max(data, d => d.y) + CONFIG.NODE_RADIUS;
+                resolve({ data, maxLayoutX, maxLayoutY });
+            };
+
+            orderScript.onload = () => { orderLoaded = true; tryBuild(); };
+            coordsScript.onload = () => { coordsLoaded = true; tryBuild(); };
+
+            document.head.appendChild(orderScript);
+            document.head.appendChild(coordsScript);
         });
+    };
 
-        // 2. Remaining nodes
-        nodes.forEach(d => {
-            if (!assigned.has(d.PersonID)) {
-                d.x = spacing * xCounter++;
-                assigned.add(d.PersonID);
-            }
-        });
-    }
+    // ==================== MAIN EXECUTION ====================
+    d3.json("data/family_data.json").then(familyData => {
+        applyFinalLayout(familyData, width).then(result => {
+            const { data, maxLayoutX, maxLayoutY } = result;
 
-    // ----------------------------------------------------
-    // --- 3. Sibling Grouping (For Line Drawing, No Shifting) ---
-    // ----------------------------------------------------
-    const siblingGroupsByGen = {};
-    for (let gen in genGroups) {
-        const nodes = genGroups[gen];
-        const drawn = new Set();
-        let groupIndex = 0;
+            const scale = Math.min(width / maxLayoutX, height / maxLayoutY) * 0.95;
+            const initialTransform = d3.zoomIdentity.scale(scale);
 
-        nodes.forEach(d => {
-            if (!d.SiblingID || drawn.has(d.PersonID)) return;
-
-            const siblingIDs = d.SiblingID.split(",").map(s => s.trim());
-            const siblings = [d, ...siblingIDs.map(id => idMap[id]).filter(p => p)];
-
-            // Sort siblings left to right based on their current X position
-            siblings.sort((a,b)=>a.x - b.x);
-
-            // Calculate color based on group index
-            const colorIndex = groupIndex % SIBLING_COLORS.length;
-            const groupColor = SIBLING_COLORS[colorIndex];
-
-            // Update group info (for drawing the parent connection lines)
-            const xMin = Math.min(...siblings.map(s => s.x));
-            const xMax = Math.max(...siblings.map(s => s.x));
-            // Sibling group line length is calculated based on groupIndex
-            const lineLength = baseLineLength * (1 + groupIndexFactor * groupIndex);
-            const yTop = siblings[0].y - lineLength;
-
-            siblingGroupsByGen[gen] = siblingGroupsByGen[gen] || [];
-            siblingGroupsByGen[gen].push({
-                siblings,
-                xCenter: (xMin + xMax)/2,
-                yTop,
-                parents: siblings.map(s => [s.FatherID, s.MotherID]),
-                groupColor: groupColor // Store the color for later drawing
+            // ==================== PARTNER HORIZONTAL LINES ====================
+            data.forEach(person => {
+                if (person.PartnerID) {
+                    const partners = person.PartnerID.toString().split(',').map(p => p.trim());
+                    partners.forEach(pId => {
+                        const partner = data.find(n => n.PersonID.toString() === pId);
+                        if (
+                            partner &&
+                            person.x !== undefined &&
+                            partner.x !== undefined &&
+                            person.PersonID < partner.PersonID
+                        ) {
+                            const r = person.r || CONFIG.NODE_RADIUS;
+                            g.append("line")
+                                .attr("x1", Math.min(person.x, partner.x) + r)
+                                .attr("x2", Math.max(person.x, partner.x) - r)
+                                .attr("y1", person.y)
+                                .attr("y2", partner.y)
+                                .attr("stroke", CONFIG.PARTNER_LINE_COLOR)
+                                .attr("stroke-width", CONFIG.PARTNER_LINE_WIDTH);
+                        }
+                    });
+                }
             });
 
-            siblings.forEach(sib => drawn.add(sib.PersonID));
-            groupIndex++;
-        });
+    // ==================== CURVED PARENT → CHILD CONNECTIONS ====================
+    const genGroups = d3.group(data, d => d.Generation);
+
+    genGroups.forEach(nodes => {
+
+function drawParentDroplet(g, parentNodes) {
+    if (!parentNodes || parentNodes.length === 0) return null;
+
+    const r = CONFIG.NODE_RADIUS;
+    const midX = d3.mean(parentNodes, d => d.x);
+    const midY = d3.mean(parentNodes, d => d.y);
+
+    // Width: slightly wider than distance between parents, or at least 2×NODE_RADIUS
+    const width = parentNodes.length === 1
+        ? r * 2.5
+        : Math.max(r * 5, Math.abs(parentNodes[0].x - parentNodes[1].x) + r);
+
+    const height = 1.5 * r * 2;
+    const cornerRadius = r * 0.5;
+
+    // Draw rounded rectangle centered on midX/midY
+    g.append("rect")
+        .attr("x", midX - width / 2)
+        .attr("y", midY - height / 2 + r/3)
+        .attr("width", width)
+        .attr("height", height)
+        .attr("rx", cornerRadius)
+        .attr("ry", cornerRadius)
+        .attr("fill", "#f0f0f0")
+        .attr("stroke", CONFIG.PARENT_LINE_COLOR)    // same as parent-child line
+        .attr("stroke-width", CONFIG.PARENT_LINE_WIDTH)
+        .lower();
+
+    // Return bottom-center coordinates for connecting children
+    return {
+        x: midX,
+        y: midY - height / 2 + r/3 + height
+    };
+}
+
+
+
+
+        // --- Group by parents ---
+const parentGroups = d3.groups(nodes, d => `${d.FatherID || ''}_${d.MotherID || ''}`);
+
+parentGroups.forEach(([parentKey, children]) => {
+    const parentIDs = parentKey.split("_");
+    let parentNodes = [];
+    if (parentIDs[0]) {
+        const father = data.find(n => n.PersonID.toString() === parentIDs[0]);
+        if (father) parentNodes.push(father);
     }
-
-    // ----------------------------------------------------
-    // --- 4. Drawing Lines ---
-    // ----------------------------------------------------
-
-    // --- Draw spouse lines ---
-    data.forEach(d => {
-        if (d.PartnerID && idMap[d.PartnerID] && +d.PersonID < +d.PartnerID) {
-            const partner = idMap[d.PartnerID];
-            g.append("line") // Use 'g' instead of 'svg'
-                .attr("x1", d.x).attr("y1", d.y)
-                .attr("x2", partner.x).attr("y2", partner.y)
-                .attr("stroke", SPOUSE_COLOR) // Dark Gray for spouses
-                .attr("stroke-width", 2);
-        }
-    });
-
-    // --- Draw sibling vertical and horizontal lines (Grouping Lines) ---
-    Object.values(siblingGroupsByGen).flat().forEach(group => {
-        const siblings = group.siblings;
-        const color = group.groupColor; // Use the assigned group color
-
-        siblings.forEach(sib => {
-            g.append("line") // Use 'g' instead of 'svg'
-                .attr("x1", sib.x).attr("y1", sib.y)
-                .attr("x2", sib.x).attr("y2", group.yTop)
-                .attr("stroke", color) // Sibling group color
-                .attr("stroke-width", 2);
-        });
-
-        g.append("line") // Use 'g' instead of 'svg'
-            .attr("x1", Math.min(...siblings.map(s => s.x)))
-            .attr("y1", group.yTop)
-            .attr("x2", Math.max(...siblings.map(s => s.x)))
-            .attr("y2", group.yTop)
-            .attr("stroke", color) // Sibling group color
-            .attr("stroke-width", 2);
-    });
-
-    // -------------------------------------------------------------
-    // --- 5. Center Children under Parents (with Collision Check and Dynamic Line Length) ---
-    // -------------------------------------------------------------
-    for (let gen in genGroups) {
-        const nodes = genGroups[gen];
-        // Counter for people without siblings in this generation
-        let nonSiblingIndex = 0; 
-        
-        nodes.forEach(d => {
-            // Only process individual children (not part of a sibling group)
-            if (d.SiblingID) return;
-
-            // Skip if no parents exist
-            if (!( (d.FatherID && idMap[d.FatherID]) || (d.MotherID && idMap[d.MotherID]) )) return;
-
-            const parentIDs = [];
-            if (d.FatherID && idMap[d.FatherID]) parentIDs.push(d.FatherID);
-            if (d.MotherID && idMap[d.MotherID]) parentIDs.push(d.MotherID);
-            if (parentIDs.length === 0) return;
-
-            const parentXs = parentIDs.map(id => idMap[id].x);
-            // Calculate desired X position (midpoint of parents)
-            const desiredX = parentXs.reduce((a,b)=>a+b,0)/parentXs.length;
-
-            // Collision check
-            const minSpacing = nodeRadius * 2;
-            let safeX = desiredX;
-            let iteration = 0;
-            // Check for collision with *any* other node in the generation
-            while (nodes.some(n => n !== d && Math.abs(n.x - safeX) < minSpacing) && iteration < 20) {
-                safeX += minSpacing; 
-                iteration++;
-            }
-            d.x = safeX; // Set the final X position
-
-            // DYNAMIC LINE LENGTH CALCULATION
-            // Modulate the base length using the nonSiblingIndex
-            const lengthMultiplier = 1 + nonSiblingIndex * 0.2; // 20% increase for each subsequent node
-            const baseConnLength = 0.3 * genSpacing; // Base length for non-sibling connectors
-            const lineLength = baseConnLength * lengthMultiplier; 
-            
-            const yTop = d.y - lineLength;
-            
-            nonSiblingIndex++; // Increment the index for the next non-sibling node 
-
-            // --- Draw Parent-to-Child Connection Lines (using 'g') ---
-
-            // Vertical line (child to connection point)
-            g.append("line")
-                .attr("x1", d.x).attr("y1", d.y)
-                .attr("x2", d.x).attr("y2", yTop)
-                .attr("stroke", INDIVIDUAL_CHILD_COLOR) // Crimson Red for individual children
-                .attr("stroke-width", 2);
-
-            // Orthogonal connection point logic
-            const parentXCenter = parentXs.reduce((a,b)=>a+b,0)/parentXs.length;
-            const parentYs = parentIDs.map(id => idMap[id].y);
-            const parentYCenter = parentYs.reduce((a,b)=>a+b,0)/parentYs.map(p => p).length;
-            const yMid = yTop - (yTop - parentYCenter)/2;
-
-            // Vertical segment (from yTop to yMid)
-            g.append("line")
-                .attr("x1", d.x).attr("y1", yTop)
-                .attr("x2", d.x).attr("y2", yMid)
-                .attr("stroke", INDIVIDUAL_CHILD_COLOR) // Crimson Red for individual children
-                .attr("stroke-width", 2);
-
-            // Horizontal segment (from child's vertical line to parent's vertical line)
-            g.append("line")
-                .attr("x1", d.x).attr("y1", yMid)
-                .attr("x2", parentXCenter).attr("y2", yMid)
-                .attr("stroke", INDIVIDUAL_CHILD_COLOR) // Crimson Red for individual children
-                .attr("stroke-width", 2);
-
-            // Vertical segment (from yMid to parent's level)
-            g.append("line")
-                .attr("x1", parentXCenter).attr("y1", yMid)
-                .attr("x2", parentXCenter).attr("y2", parentYCenter)
-                .attr("stroke", INDIVIDUAL_CHILD_COLOR) // Crimson Red for individual children
-                .attr("stroke-width", 2);
-        });
+    if (parentIDs[1]) {
+        const mother = data.find(n => n.PersonID.toString() === parentIDs[1]);
+        if (mother) parentNodes.push(mother);
     }
+    if (parentNodes.length === 0) return;
 
-    // --- Sibling-to-parent orthogonal connections (Lines) (using 'g') ---
-    Object.values(siblingGroupsByGen).flat().forEach(group => {
-        const parentIDs = new Set();
-        group.parents.forEach(p => p.forEach(id => { if (id && idMap[id]) parentIDs.add(id); }));
-        if (parentIDs.size === 0) return;
+    // --- Draw droplet behind parent(s) and get bottom-center
+const parentBottom = drawParentDroplet(g, parentNodes);
+if (!parentBottom) return;
 
-        const color = group.groupColor; // Use the assigned group color
-        
-        const parentXs = [...parentIDs].map(id => idMap[id].x);
-        const parentYs = [...parentIDs].map(id => idMap[id].y);
-        const parentXCenter = parentXs.reduce((a,b)=>a+b,0)/parentXs.length;
-        const parentYCenter = parentYs.reduce((a,b)=>a+b,0)/parentYs.length;
-        const yMid = (group.yTop + parentYCenter)/2;
+// --- Now draw curves for children starting from parentBottom ---
+const childMidX = d3.mean(children, d => d.x);
+const childMidY = d3.mean(children, d => d.y - CONFIG.NODE_RADIUS);
+const splitY = parentBottom.y + 0.75 * (childMidY - parentBottom.y);
 
-        // Vertical segment (group top line to yMid)
-        g.append("line")
-            .attr("x1", group.xCenter).attr("y1", group.yTop)
-            .attr("x2", group.xCenter).attr("y2", yMid)
-            .attr("stroke", color) // Sibling group color
-            .attr("stroke-width", 2);
+// Main curve
+const mainCurve = d3.path();
+mainCurve.moveTo(parentBottom.x, parentBottom.y);
+const controlYMain = parentBottom.y + CONFIG.CURVE_OFFSET_FACTOR * (splitY - parentBottom.y);
+mainCurve.bezierCurveTo(parentBottom.x, controlYMain, childMidX, controlYMain, childMidX, splitY);
 
-        // Horizontal segment (group center to parent center)
-        g.append("line")
-            .attr("x1", group.xCenter).attr("y1", yMid)
-            .attr("x2", parentXCenter).attr("y2", yMid)
-            .attr("stroke", color) // Sibling group color
-            .attr("stroke-width", 2);
+g.append("path")
+    .attr("d", mainCurve.toString())
+    .attr("fill", "none")
+    .attr("stroke", CONFIG.PARENT_LINE_COLOR)
+    .attr("stroke-width", CONFIG.PARENT_LINE_WIDTH);
 
-        // Vertical segment (yMid to parent level)
-        g.append("line")
-            .attr("x1", parentXCenter).attr("y1", yMid)
-            .attr("x2", parentXCenter).attr("y2", parentYCenter)
-            .attr("stroke", color) // Sibling group color
-            .attr("stroke-width", 2);
-    });
+// Curves to each child
+children.forEach(person => {
+    const path = d3.path();
+    path.moveTo(childMidX, splitY);
+    const controlYChild = splitY + CONFIG.CURVE_OFFSET_FACTOR * (person.y - CONFIG.NODE_RADIUS - splitY);
+    path.bezierCurveTo(childMidX, controlYChild, person.x, controlYChild, person.x, person.y - CONFIG.NODE_RADIUS);
 
-    // ----------------------------------------------------
-    // --- 6. Draw nodes (incorporating images) ---
-    // ----------------------------------------------------
-
-    // Define a clip path for circular images (ID based on PersonID)
-    const defs = g.append("defs");
-
-    defs.selectAll(".clip-circle")
-        .data(data)
-        .enter()
-        .append("clipPath")
-        .attr("id", d => `clip-${d.PersonID}`)
-        .append("circle")
-        .attr("r", nodeRadius)
-        .attr("cx", 0)
-        .attr("cy", 0);
-
-
-    const nodeGroup = g.selectAll(".node")
-        .data(data)
-        .enter()
-        .append("g")
-        .attr("class","node")
-        .attr("transform", d => `translate(${d.x},${d.y})`);
-
-    // 6a. Add a background circle (used for stroke/border and when image is missing)
-    // The fill will be handled by CSS or the image itself.
-    nodeGroup.append("circle")
-        .attr("r", nodeRadius); 
-        
-    // 6b. Add the Image element, clipped by the circle
-    nodeGroup.append("image")
-        // UPDATED: Prepend '/images/' to the photo filename for correct pathing.
-        .attr("xlink:href", d => d.Photo && d.Photo !== "" ? `images/${d.Photo}` : `https://placehold.co/${nodeRadius*2}x${nodeRadius*2}/bbbbbb/333333?text=?`)
-        .attr("clip-path", d => `url(#clip-${d.PersonID})`)
-        .attr("x", -nodeRadius)
-        .attr("y", -nodeRadius)
-        .attr("height", nodeRadius * 2)
-        .attr("width", nodeRadius * 2)
-        .attr("preserveAspectRatio", "xMidYMid slice") // Ensure image covers the circle area
-        // Fallback placeholder for when the image file is not found (using a generic placeholder)
-        .attr("onerror", `this.onerror=null; this.href='https://placehold.co/${nodeRadius*2}x${nodeRadius*2}/bbbbbb/333333?text=?';`); 
-
-    // 6c. Add the text label below the node
-    nodeGroup.append("text")
-        .attr("dy", nodeRadius + 12) // Move text below the circle for clarity
-        .attr("text-anchor", "middle")
-        .text(d => d['Name-ru']); 
-        
-    // ------------------------------
-    // --- 7. Implement Zoom and Pan ---
-    // ------------------------------
-    const zoom = d3.zoom()
-        .scaleExtent([0.1, 4]) // Allow zoom out to 10% and zoom in to 400%
-        .on("zoom", (event) => {
-            // Apply the transformation (translation and scale) to the 'g' element
-            g.attr("transform", event.transform);
-        });
-
-    // Apply the zoom behavior to the main svg element
-    svg.call(zoom);
-
-    // Optional: Zoom to fit the entire content initially (especially if it overflows)
-    // Find the bounds of the rendered content
-    const bbox = g.node().getBBox();
-    
-    // Calculate the scale and translation required to fit the bounding box within the SVG view
-    const scaleX = width / bbox.width;
-    const scaleY = height / bbox.height;
-    const scale = Math.min(scaleX, scaleY) * 0.95; // Use 95% of the calculated scale for padding
-    
-    // Calculate translation to center the content after scaling
-    const translateX = (width / 2) - (bbox.x + bbox.width / 2) * scale;
-    const translateY = (height / 2) - (bbox.y + bbox.height / 2) * scale;
-    
-    // Create a new transform object and apply it
-    const initialTransform = d3.zoomIdentity.translate(translateX, translateY).scale(scale);
-    
-    // Apply the initial transform smoothly
-    svg.transition().duration(750).call(zoom.transform, initialTransform);
+    g.append("path")
+        .attr("d", path.toString())
+        .attr("fill", "none")
+        .attr("stroke", CONFIG.PARENT_LINE_COLOR)
+        .attr("stroke-width", CONFIG.PARENT_LINE_WIDTH);
 });
+
+});
+
+
+
+    });
+
+
+            // ==================== DRAW NODES ====================
+            const defs = g.append("defs");
+            defs.selectAll(".clip-circle")
+                .data(data)
+                .enter()
+                .append("clipPath")
+                .attr("id", d => `clip-${d.PersonID}`)
+                .append("circle")
+                .attr("r", d => d.r || CONFIG.NODE_RADIUS)
+                .attr("cx", 0)
+                .attr("cy", 0);
+
+            const nodeGroup = g.selectAll(".node")
+                .data(data)
+                .enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+
+            nodeGroup.append("circle")
+                .attr("r", d => d.r || CONFIG.NODE_RADIUS)
+                .attr("fill", "#ddd")
+                .attr("stroke", "#333");
+
+            nodeGroup.append("image")
+                .attr("xlink:href", d => d.Photo && d.Photo !== "" 
+                    ? `images/${d.Photo}` 
+                    : `https://placehold.co/${(d.r || CONFIG.NODE_RADIUS)*2}x${(d.r || CONFIG.NODE_RADIUS)*2}/bbbbbb/333333?text=?`)
+                .attr("clip-path", d => `url(#clip-${d.PersonID})`)
+                .attr("x", d => -(d.r || CONFIG.NODE_RADIUS))
+                .attr("y", d => -(d.r || CONFIG.NODE_RADIUS))
+                .attr("height", d => (d.r || CONFIG.NODE_RADIUS) * 2)
+                .attr("width", d => (d.r || CONFIG.NODE_RADIUS) * 2)
+                .attr("preserveAspectRatio", "xMidYMid slice");
+
+            nodeGroup.append("text")
+                .attr("dy", d => (d.r || CONFIG.NODE_RADIUS) + 12)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "12px")
+                .text(d => d['Name-ru']);
+
+            nodeGroup.append("text")
+                .attr("dy", d => (d.r || CONFIG.NODE_RADIUS) + 28)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "10px")
+                .attr("fill", "#555")
+                .text(d => d.PersonID);
+
+            // ==================== ZOOM & PAN ====================
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 4])
+                .on("zoom", (event) => g.attr("transform", event.transform));
+
+            svg.call(zoom);
+            svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity.scale(scale));
+
+        }).catch(error => console.error("Error in layout:", error));
+    });
