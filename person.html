@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
       // Biography
-      fetch(`bio/${folderId}/${folderId}.txt`)
+      fetch(`../bio/${folderId}/${folderId}.txt`)
         .then(resp => resp.ok ? resp.text() : "")
         .then(txt => { document.getElementById('bio-text').textContent = txt || "No biography text available."; })
         .catch(() => { document.getElementById('bio-text').textContent = "No biography text found."; });
