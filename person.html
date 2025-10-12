@@ -5,47 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Person Details</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #fafafa;
-    color: #222;
-  }
-  h1 {
-    text-align: center;
-    margin-bottom: 0.2em;
-  }
-  .info, .bio {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-  }
-  img.main-photo {
-    display: block;
-    margin: 20px auto;
-    max-width: 200px;
-    border-radius: 50%;
-    border: 3px solid #ccc;
-  }
-  .gallery img {
-    max-width: 150px;
-    margin: 5px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-  }
-  #mini-tree {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    border: 1px solid #ccc;
-    background: #fafafa;
-    border-radius: 8px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
-  }
+  body { font-family: Arial; max-width: 900px; margin: 40px auto; padding: 20px; background: #fafafa; color: #222; }
+  h1 { text-align: center; margin-bottom: 0.2em; }
+  .info, .bio { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  img.main-photo { display: block; margin: 20px auto; max-width: 200px; border-radius: 50%; border: 3px solid #ccc; }
+  .gallery img { max-width: 150px; margin: 5px; border-radius: 8px; border: 1px solid #ddd; }
+  #mini-tree { position: fixed; top: 10px; right: 10px; border: 1px solid #ccc; background: #fafafa; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
 </style>
 </head>
 <body>
@@ -66,36 +31,21 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  // --- Extract person id from URL ---
   const params = new URLSearchParams(window.location.search);
-  const folderId = params.get('id'); // e.g. "id3"
-  if (!folderId) {
-    document.body.innerHTML = "<h2>No person ID specified.</h2>";
-    return;
-  }
+  const folderId = params.get('id');
+  if (!folderId) return document.body.innerHTML = "<h2>No person ID specified.</h2>";
   const personId = folderId.replace('id', '');
 
-  // --- Load main family data ---
   fetch('data/family_data.json')
     .then(res => res.json())
     .then(allPeople => {
       const person = allPeople.find(p => p.PersonID.toString() === personId);
+      if (!person) return document.body.innerHTML = `<h2>No person with ID ${personId} found.</h2>`;
 
-      if (!person) {
-        document.body.innerHTML = `<h2>No person with ID ${personId} found.</h2>`;
-        return;
-      }
+      document.getElementById('name').textContent = `${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}`;
+      document.getElementById('main-photo').src = person.Photo ? `bio/${folderId}/${person.Photo}` : "https://placehold.co/200x200?text=No+Photo";
 
-      // Fill header info
-      document.getElementById('name').textContent = `${person["Name-ru"] || person.Name || "Unknown"} ${person["LastName-ru"] || ""}`;
-
-      // Main photo
-      const mainPhoto = document.getElementById('main-photo');
-      mainPhoto.src = person.Photo ? `data/images/${person.Photo}` : "https://placehold.co/200x200?text=No+Photo";
-
-      // Info box
-      const infoDiv = document.getElementById('info');
-      infoDiv.innerHTML = `
+      document.getElementById('info').innerHTML = `
         <p><strong>Birth:</strong> ${person.BirthDate || "—"} (${person.PlaceBirth || "Unknown"})</p>
         <p><strong>Current place:</strong> ${person.PlaceNow || "—"}</p>
         <p><strong>About:</strong> ${person.About || "—"}</p>
@@ -105,162 +55,103 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Children:</strong> ${person.ChildID || "—"}</p>
       `;
 
-      // --- Load biography text if folder exists ---
-      const txtPath = `bio/${folderId}/${folderId}.txt`;
-      fetch(txtPath)
+      // Load biography text if exists
+      fetch(`bio/${folderId}/${folderId}.txt`)
         .then(resp => resp.ok ? resp.text() : "")
-        .then(txt => {
-          document.getElementById('bio-text').textContent = txt || "No biography text available.";
-        })
-        .catch(() => document.getElementById('bio-text').textContent = "No biography text found.");
+        .then(txt => document.getElementById('bio-text').textContent = txt || "No biography text available.")
+        .catch(()=> document.getElementById('bio-text').textContent = "No biography text found.");
 
-      // --- Load all images from bio folder ---
-      fetch(`bio/${folderId}/`)
-        .then(r => r.ok ? r.text() : "")
-        .then(html => {
-          const imgDiv = document.getElementById('bio-images');
-          if (!html) {
-            imgDiv.innerHTML = "<p>No additional images.</p>";
-            return;
-          }
+      // Load additional images listed in JSON (no folder listing)
+      const galleryDiv = document.getElementById('bio-images');
+      if (person.Other_photo && person.Other_photo.length > 0) {
+        galleryDiv.innerHTML = person.Other_photo.map(f => `<img src="bio/${folderId}/${f}" alt="">`).join("");
+      } else galleryDiv.innerHTML = "<p>No additional images.</p>";
 
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, "text/html");
-          const files = Array.from(doc.querySelectorAll("a"))
-            .map(a => a.getAttribute("href"))
-            .filter(f => f && /\.(jpg|jpeg|png|gif)$/i.test(f))
-            .filter(f => !f.includes(folderId + ".txt"));
-
-          if (files.length === 0) imgDiv.innerHTML = "<p>No additional images.</p>";
-          else imgDiv.innerHTML = files.map(f => `<img src="bio/${folderId}/${f}" alt="">`).join("");
-        })
-        .catch(() => document.getElementById('bio-images').innerHTML = "<p>No additional images.</p>");
-
-      // --- Mini family tree ---
+      // Mini-tree
       loadMiniTree(allPeople, personId);
-    })
-    .catch(err => {
-      console.error("Error loading person data:", err);
-      document.body.innerHTML = "<h2>Error loading person data.</h2>";
     });
 
-  // --- MiniTree function ---
-  function loadMiniTree(familyData, highlightId) {
-    const svg = d3.select("#mini-tree");
-    svg.selectAll("*").remove(); // clear previous
+  function loadMiniTree(familyData, highlightId){
+    const svg = d3.select("#mini-tree"); svg.selectAll("*").remove();
     const g = svg.append("g");
-    const width = +svg.attr("width");
-    const height = +svg.attr("height");
+    const width = +svg.attr("width"), height = +svg.attr("height");
 
     const orderScript = document.createElement("script");
     orderScript.src = "data/manual_order_regrouped.js";
-
     const coordsScript = document.createElement("script");
     coordsScript.src = "data/final_x_coordinates.js";
 
-    let orderLoaded = false, coordsLoaded = false;
+    let orderLoaded=false, coordsLoaded=false;
+    const tryBuild = ()=>{
+      if(!orderLoaded||!coordsLoaded) return;
+      if(typeof manualOrderFull==="undefined"||typeof finalXCoordinates==="undefined") return;
 
-    const tryBuild = () => {
-        if (!orderLoaded || !coordsLoaded) return;
-        if (typeof manualOrderFull === "undefined" || typeof finalXCoordinates === "undefined") {
-            console.warn("MiniTree: layout data missing, skipping layout");
-            return;
+      const scaleX = d3.scaleLinear()
+        .domain([d3.min(Object.values(finalXCoordinates).flat()),d3.max(Object.values(finalXCoordinates).flat())])
+        .range([10,width-10]);
+
+      const genGroups = d3.group(familyData,d=>d.Generation);
+      genGroups.forEach((nodes,gen)=>{
+        const orderedIds=manualOrderFull[gen], coords=finalXCoordinates[gen];
+        if(!orderedIds||!coords) return;
+        for(let i=0;i<Math.min(orderedIds.length,coords.length);i++){
+          const id=orderedIds[i];
+          const person=nodes.find(p=>p.PersonID.toString()===id.toString());
+          if(!person) continue;
+          person.x=scaleX(coords[i]);
+          person.y=+person.Generation*20+10;
         }
+      });
 
-        // --- Assign positions ---
-        const scaleX = d3.scaleLinear()
-            .domain([d3.min(Object.values(finalXCoordinates).flat()), d3.max(Object.values(finalXCoordinates).flat())])
-            .range([10, width - 10]);
-
-        const genGroups = d3.group(familyData, d => d.Generation);
-        genGroups.forEach((nodes, gen) => {
-            const orderedIds = manualOrderFull[gen];
-            const coords = finalXCoordinates[gen];
-            if (!orderedIds || !coords) return;
-            for (let i = 0; i < Math.min(orderedIds.length, coords.length); i++) {
-                const id = orderedIds[i];
-                const person = nodes.find(p => p.PersonID.toString() === id.toString());
-                if (!person) continue;
-                person.x = scaleX(coords[i]);
-                person.y = +person.Generation * 20 + 10;
-            }
+      // Partner connections
+      familyData.forEach(p=>{
+        if(!p.PartnerID) return;
+        p.PartnerID.toString().split(",").map(pid=>pid.trim()).forEach(pid=>{
+          const partner=familyData.find(f=>f.PersonID.toString()===pid);
+          if(!partner||p.PersonID>=partner.PersonID) return;
+          g.append("line")
+            .attr("x1",p.x).attr("y1",p.y)
+            .attr("x2",partner.x).attr("y2",partner.y)
+            .attr("stroke","#888").attr("stroke-width",1);
         });
+      });
 
-        // --- Draw partner connections ---
-        familyData.forEach(person => {
-            if (!person.PartnerID) return;
-            const partners = person.PartnerID.toString().split(",").map(p => p.trim());
-            partners.forEach(pid => {
-                const partner = familyData.find(p => p.PersonID.toString() === pid);
-                if (!partner || person.PersonID >= partner.PersonID) return; // avoid duplicates
-                g.append("line")
-                    .attr("x1", person.x)
-                    .attr("y1", person.y)
-                    .attr("x2", partner.x)
-                    .attr("y2", partner.y)
-                    .attr("stroke", "#888")
-                    .attr("stroke-width", 1);
-            });
+      // Parents → children
+      const families={};
+      familyData.forEach(child=>{
+        const fID=child.FatherID||"", mID=child.MotherID||"";
+        if(!fID&&!mID) return;
+        const key=`${fID}_${mID}`;
+        if(!families[key]) families[key]=[];
+        families[key].push(child);
+      });
+      Object.entries(families).forEach(([key,children])=>{
+        const [fID,mID]=key.split("_");
+        const parents=[];
+        if(fID){const f=familyData.find(p=>p.PersonID.toString()===fID); if(f) parents.push(f);}
+        if(mID){const m=familyData.find(p=>p.PersonID.toString()===mID); if(m) parents.push(m);}
+        if(parents.length===0) return;
+        const midX=d3.mean(parents,d=>d.x), midY=d3.mean(parents,d=>d.y);
+        children.forEach(c=>{
+          g.append("line").attr("x1",midX).attr("y1",midY).attr("x2",c.x).attr("y2",c.y)
+           .attr("stroke","#ccc").attr("stroke-width",1);
         });
+      });
 
-        // --- Draw parent → child lines using partners' midpoints ---
-        const families = {}; // key = "fatherID_motherID", value = children array
-        familyData.forEach(child => {
-            const fatherID = child.FatherID || "";
-            const motherID = child.MotherID || "";
-            if (!fatherID && !motherID) return;
-            const key = `${fatherID}_${motherID}`;
-            if (!families[key]) families[key] = [];
-            families[key].push(child);
-        });
-
-        Object.entries(families).forEach(([key, children]) => {
-            const [fatherID, motherID] = key.split("_");
-            const parents = [];
-            if (fatherID) {
-                const father = familyData.find(p => p.PersonID.toString() === fatherID.toString());
-                if (father) parents.push(father);
-            }
-            if (motherID) {
-                const mother = familyData.find(p => p.PersonID.toString() === motherID.toString());
-                if (mother) parents.push(mother);
-            }
-            if (parents.length === 0) return;
-
-            const midX = d3.mean(parents, d => d.x);
-            const midY = d3.mean(parents, d => d.y);
-
-            children.forEach(child => {
-                g.append("line")
-                    .attr("x1", midX)
-                    .attr("y1", midY)
-                    .attr("x2", child.x)
-                    .attr("y2", child.y)
-                    .attr("stroke", "#ccc")
-                    .attr("stroke-width", 1);
-            });
-        });
-
-        // --- Draw nodes ---
-        g.selectAll("circle")
-            .data(familyData)
-            .enter()
-            .append("circle")
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y)
-            .attr("r", d => d.PersonID.toString() === highlightId ? 5 : 3)
-            .attr("fill", d => d.PersonID.toString() === highlightId ? "red" : "#555");
+      g.selectAll("circle").data(familyData).enter()
+        .append("circle")
+        .attr("cx",d=>d.x).attr("cy",d=>d.y)
+        .attr("r",d=>d.PersonID.toString()===highlightId?5:3)
+        .attr("fill",d=>d.PersonID.toString()===highlightId?"red":"#555");
     };
 
-    orderScript.onload = () => { orderLoaded = true; tryBuild(); };
-    coordsScript.onload = () => { coordsLoaded = true; tryBuild(); };
-
+    orderScript.onload=()=>{orderLoaded=true;tryBuild();}
+    coordsScript.onload=()=>{coordsLoaded=true;tryBuild();}
     document.head.appendChild(orderScript);
     document.head.appendChild(coordsScript);
-}
+  }
 
 });
 </script>
-
 </body>
 </html>
