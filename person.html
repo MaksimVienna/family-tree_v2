@@ -95,14 +95,14 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
       // Biography
-      fetch(`../bio/${folderId}/${folderId}.txt`)
+      fetch(`bio/${folderId}/${folderId}.txt`)
         .then(resp => resp.ok ? resp.text() : "")
         .then(txt => { document.getElementById('bio-text').textContent = txt || "No biography text available."; })
         .catch(() => { document.getElementById('bio-text').textContent = "No biography text found."; });
 
       // Gallery images
       const imgDiv = document.getElementById('bio-images');
-      const galleryImages = person.Other_photo ? person.Other_photo.split(",").map(s => s.trim()).filter(s => s).map(f => `../bio/${folderId}/${f}`) : [];
+      const galleryImages = person.Other_photo ? person.Other_photo.split(",").map(s => s.trim()).filter(s => s).map(f => `bio/${folderId}/${f}`) : [];
       imgDiv.innerHTML = galleryImages.length === 0 ? "<p>No additional images.</p>" : galleryImages.map(f => `<img src="${f}" alt="">`).join("");
 
       // --- Mini tree ---
