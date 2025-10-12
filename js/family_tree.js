@@ -71,6 +71,10 @@ const applyFinalLayout = (data, width) => {
                     person.x = scaledX;
                     person.y = +person.Generation * CONFIG.BASE_Y_UNIT + CONFIG.NODE_RADIUS;
                     person.r = CONFIG.NODE_RADIUS;
+
+                    // compute folderId for each person
+                    const nameSafe = person.Name ? person.Name.toLowerCase().replace(/\W+/g, '_') : '';
+                    person.folderId = `id${person.PersonID}_${nameSafe}`;
                 }
             }
 
@@ -205,77 +209,68 @@ d3.json("data/family_data.json").then(familyData => {
             .attr("cx", 0)
             .attr("cy", 0);
 
-       // ---- NODE GROUPS WITH CLICK HANDLER ----
-const nodeGroup = g.selectAll(".node")
-    .data(data)
-    .enter()
-    .append("g")
-    .attr("class", "node")
-    .attr("transform", d => `translate(${d.x},${d.y})`)
-    .style("cursor", "pointer")
-    .on("click", function(event, d) {
-        if (!d.PersonID) return;
-        const personFolder = `id${d.PersonID}`;
-        // Always open person.html, even if no folder exists
-        window.open(`../person.html?id=${personFolder}`, "_blank");
-    });
-
-// --- DRAW MAIN CIRCLES ---
-nodeGroup.append("circle")
-    .attr("r", d => d.r || CONFIG.NODE_RADIUS)
-    .attr("fill", "#ddd")
-    .attr("stroke", "#333");
-
-// --- ADD PHOTO ---
-nodeGroup.append("image")
-    .attr("xlink:href", d => d.Photo && d.Photo !== "" 
-        ? `images/${d.Photo}` 
-        : `https://placehold.co/${(d.r || CONFIG.NODE_RADIUS)*2}x${(d.r || CONFIG.NODE_RADIUS)*2}/bbbbbb/333333?text=?`)
-    .attr("clip-path", d => `url(#clip-${d.PersonID})`)
-    .attr("x", d => -(d.r || CONFIG.NODE_RADIUS))
-    .attr("y", d => -(d.r || CONFIG.NODE_RADIUS))
-    .attr("height", d => (d.r || CONFIG.NODE_RADIUS) * 2)
-    .attr("width", d => (d.r || CONFIG.NODE_RADIUS) * 2)
-    .attr("preserveAspectRatio", "xMidYMid slice");
-
-// --- ADD NAMES AND IDs ---
-nodeGroup.append("text")
-    .attr("dy", d => (d.r || CONFIG.NODE_RADIUS) + 12)
-    .attr("text-anchor", "middle")
-    .attr("font-size", "12px")
-    .text(d => d['Name-ru']);
-
-nodeGroup.append("text") 
-    .attr("dy", d => (d.r || CONFIG.NODE_RADIUS) + 28) 
-    .attr("text-anchor", "middle") 
-    .attr("font-size", "10px") 
-    .attr("fill", "#555") 
-    .text(d => d.PersonID);
-
-// ==================== MARK NODES WITH WEBPAGES ====================
-nodeGroup.each(function(d) {
+        const nodeGroup = g.selectAll(".node")
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", d => `translate(${d.x},${d.y})`)
+            .style("cursor", "pointer")
+            .on("click", function(event, d) {
     if (!d.PersonID) return;
-    const personFolder = `id${d.PersonID}`;
-    const txtFilePath = `../bio/${personFolder}/${personFolder}.txt`;
-
-    // Check if the TXT exists
-    fetch(txtFilePath, { method: "HEAD" })
-        .then(response => {
-            if (response.ok) {
-                // Add a green marker
-                d3.select(this)
-                    .append("circle")
-                    .attr("r", 6)
-                    .attr("cx", (d.r || CONFIG.NODE_RADIUS) * 0.7)
-                    .attr("cy", -(d.r || CONFIG.NODE_RADIUS) * 0.7)
-                    .attr("fill", "limegreen")
-                    .attr("stroke", "#333")
-                    .attr("stroke-width", 1);
-            }
-        })
-        .catch(() => {}); // ignore errors if folder doesn't exist
+    window.open(`../person.html?id=id${d.PersonID}`, "_blank"); // numeric ID only
 });
 
+
+        nodeGroup.append("circle")
+            .attr("r", d => d.r || CONFIG.NODE_RADIUS)
+            .attr("fill", "#ddd")
+            .attr("stroke", "#333");
+
+        nodeGroup.append("image")
+            .attr("xlink:href", d => d.Photo && d.Photo !== "" 
+                ? `images/${d.Photo}` 
+                : `https://placehold.co/${(d.r || CONFIG.NODE_RADIUS)*2}x${(d.r || CONFIG.NODE_RADIUS)*2}/bbbbbb/333333?text=?`)
+            .attr("clip-path", d => `url(#clip-${d.PersonID})`)
+            .attr("x", d => -(d.r || CONFIG.NODE_RADIUS))
+            .attr("y", d => -(d.r || CONFIG.NODE_RADIUS))
+            .attr("height", d => (d.r || CONFIG.NODE_RADIUS) * 2)
+            .attr("width", d => (d.r || CONFIG.NODE_RADIUS) * 2)
+            .attr("preserveAspectRatio", "xMidYMid slice");
+
+        nodeGroup.append("text")
+            .attr("dy", d => (d.r || CONFIG.NODE_RADIUS) + 12)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "12px")
+            .text(d => d['Name-ru']);
+
+        nodeGroup.append("text") 
+            .attr("dy", d => (d.r || CONFIG.NODE_RADIUS) + 28) 
+            .attr("text-anchor", "middle") 
+            .attr("font-size", "10px") 
+            .attr("fill", "#555") 
+            .text(d => d.PersonID);
+
+        // ==================== MARK NODES WITH BIO PAGES ====================
+        nodeGroup.each(function(d) {
+            if (!d.PersonID) return;
+            const txtFilePath = `../bio/${d.folderId}/${d.folderId}.txt`;
+
+            fetch(txtFilePath, { method: "HEAD" })
+                .then(response => {
+                    if (response.ok) {
+                        d3.select(this)
+                            .append("circle")
+                            .attr("r", 6)
+                            .attr("cx", (d.r || CONFIG.NODE_RADIUS) * 0.7)
+                            .attr("cy", -(d.r || CONFIG.NODE_RADIUS) * 0.7)
+                            .attr("fill", "limegreen")
+                            .attr("stroke", "#333")
+                            .attr("stroke-width", 1);
+                    }
+                })
+                .catch(() => {}); 
+        });
 
         // ==================== ZOOM & PAN ====================
         const zoom = d3.zoom()

@@ -42,7 +42,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const folderIdRaw = params.get('id'); // e.g., "id16"
-  if (!folderIdRaw) { document.body.innerHTML = "<h2>No person ID specified.</h2>"; return; }
+  if (!folderIdRaw) {
+    document.body.innerHTML = "<h2>No person ID specified.</h2>";
+    return;
+  }
 
   const personId = folderIdRaw.replace('id', '');
 
@@ -51,8 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(allPeople => {
       const person = allPeople.find(p => p.PersonID.toString() === personId);
-      if (!person) { document.body.innerHTML = `<h2>No person with ID ${personId} found.</h2>`; return; }
+      if (!person) {
+        document.body.innerHTML = `<h2>No person with ID ${personId} found.</h2>`;
+        return;
+      }
 
+      // Compute the GitHub-safe folder name
       const nameSafe = person.Name.toLowerCase().replace(/\W+/g, '_');
       const folderId = `id${personId}_${nameSafe}`;
 
@@ -62,9 +69,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Main photo from images folder
       const mainPhoto = document.getElementById('main-photo');
       if (person.Photo && person.Photo !== "") {
-          mainPhoto.src = `images/${person.Photo}`;
+        mainPhoto.src = `images/${person.Photo}`;
       } else {
-          mainPhoto.src = "https://placehold.co/200x200?text=No+Photo";
+        mainPhoto.src = "https://placehold.co/200x200?text=No+Photo";
       }
 
       // Info box
@@ -79,14 +86,18 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Children:</strong> ${person.ChildID || "—"}</p>
       `;
 
-      // Load biography text
+      // Load biography text (GitHub-safe)
       const txtPath = `bio/${folderId}/${folderId}.txt`;
       fetch(txtPath)
         .then(resp => resp.ok ? resp.text() : "")
-        .then(txt => { document.getElementById('bio-text').textContent = txt || "No biography text available."; })
-        .catch(() => document.getElementById('bio-text').textContent = "No biography text found.");
+        .then(txt => {
+          document.getElementById('bio-text').textContent = txt || "No biography text available.";
+        })
+        .catch(() => {
+          document.getElementById('bio-text').textContent = "No biography text found.";
+        });
 
-      // Load gallery from Other_photo field only (GitHub-safe)
+      // Load additional images from Other_photo field
       const imgDiv = document.getElementById('bio-images');
       const galleryImages = [];
 
