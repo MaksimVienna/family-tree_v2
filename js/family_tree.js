@@ -217,7 +217,7 @@ d3.json("data/family_data.json").then(familyData => {
             .on("click", function(event, d) {
                 if (!d.PersonID) return;
                 // Use GitHub-safe folderId
-                window.open(`person.html?id=${d.folderId}`, "_blank");
+                window.open(`../person.html?id=${d.folderId}`, "_blank");
             });
 
         nodeGroup.append("circle")
