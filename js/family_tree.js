@@ -217,7 +217,7 @@ d3.json("data/family_data.json").then(familyData => {
             .on("click", function(event, d) {
                 if (!d.PersonID) return;
                 // Use GitHub-safe folderId
-                window.open(`person.html?id=${d.folderId}`, "_blank");
+                window.open(`../person.html?id=${d.folderId}`, "_blank");
             });
 
         nodeGroup.append("circle")
@@ -249,26 +249,27 @@ d3.json("data/family_data.json").then(familyData => {
             .attr("fill", "#555") 
             .text(d => d.PersonID);
 
-        // ==================== MARK NODES WITH BIO PAGES ====================
-        nodeGroup.each(function(d) {
-            if (!d.PersonID) return;
-            const txtFilePath = `bio/${d.folderId}/${d.folderId}.txt`;
+// ==================== MARK NODES WITH BIO PAGES ====================
+// nodeGroup.each(function(d) {
+//     if (!d.PersonID) return;
+//     const txtFilePath = `bio/${d.folderId}/${d.folderId}.txt`;
 
-            fetch(txtFilePath, { method: "HEAD" })
-                .then(response => {
-                    if (response.ok) {
-                        d3.select(this)
-                            .append("circle")
-                            .attr("r", 6)
-                            .attr("cx", (d.r || CONFIG.NODE_RADIUS) * 0.7)
-                            .attr("cy", -(d.r || CONFIG.NODE_RADIUS) * 0.7)
-                            .attr("fill", "limegreen")
-                            .attr("stroke", "#333")
-                            .attr("stroke-width", 1);
-                    }
-                })
-                .catch(() => {}); 
-        });
+//     fetch(txtFilePath, { method: "HEAD" })
+//         .then(response => {
+//             if (response.ok) {
+//                 d3.select(this)
+//                     .append("circle")
+//                     .attr("r", 6)
+//                     .attr("cx", (d.r || CONFIG.NODE_RADIUS) * 0.7)
+//                     .attr("cy", -(d.r || CONFIG.NODE_RADIUS) * 0.7)
+//                     .attr("fill", "limegreen")
+//                     .attr("stroke", "#333")
+//                     .attr("stroke-width", 1);
+//             }
+//         })
+//         .catch(() => {}); 
+// });
+
 
         // ==================== ZOOM & PAN ====================
         const zoom = d3.zoom()
