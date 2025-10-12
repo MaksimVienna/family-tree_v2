@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
       // --- Load biography text if folder exists ---
-      const txtPath = `../bio/${folderId}/${folderId}.txt`;
+      const txtPath = `bio/${folderId}/${folderId}.txt`;
       fetch(txtPath)
         .then(resp => resp.ok ? resp.text() : "")
         .then(txt => {
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(() => document.getElementById('bio-text').textContent = "No biography text found.");
 
       // --- Load all images from bio folder ---
-      fetch(`../bio/${folderId}/`)
+      fetch(`bio/${folderId}/`)
         .then(r => r.ok ? r.text() : "")
         .then(html => {
           const imgDiv = document.getElementById('bio-images');
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .filter(f => !f.includes(folderId + ".txt"));
 
           if (files.length === 0) imgDiv.innerHTML = "<p>No additional images.</p>";
-          else imgDiv.innerHTML = files.map(f => `<img src="../bio/${folderId}/${f}" alt="">`).join("");
+          else imgDiv.innerHTML = files.map(f => `<img src="bio/${folderId}/${f}" alt="">`).join("");
         })
         .catch(() => document.getElementById('bio-images').innerHTML = "<p>No additional images.</p>");
 
