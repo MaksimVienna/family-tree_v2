@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const personId = folderId.replace('id', '');
 
   // --- Load main family data ---
-  fetch('../data/family_data.json')
+  fetch('data/family_data.json')
     .then(res => res.json())
     .then(allPeople => {
       const person = allPeople.find(p => p.PersonID.toString() === personId);
@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Main photo
       const mainPhoto = document.getElementById('main-photo');
-      mainPhoto.src = person.Photo ? `../data/images/${person.Photo}` : "https://placehold.co/200x200?text=No+Photo";
+      mainPhoto.src = person.Photo ? `data/images/${person.Photo}` : "https://placehold.co/200x200?text=No+Photo";
 
       // Info box
       const infoDiv = document.getElementById('info');
@@ -153,10 +153,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const height = +svg.attr("height");
 
     const orderScript = document.createElement("script");
-    orderScript.src = "../data/manual_order_regrouped.js";
+    orderScript.src = "data/manual_order_regrouped.js";
 
     const coordsScript = document.createElement("script");
-    coordsScript.src = "../data/final_x_coordinates.js";
+    coordsScript.src = "data/final_x_coordinates.js";
 
     let orderLoaded = false, coordsLoaded = false;
 
