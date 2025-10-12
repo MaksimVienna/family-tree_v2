@@ -41,13 +41,21 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
-  const folderIdRaw = params.get('id'); // e.g., "id16"
-  if (!folderIdRaw) {
+  const folderId = params.get('id'); // full folder name, e.g., "id16_misha"
+
+  if (!folderId) {
     document.body.innerHTML = "<h2>No person ID specified.</h2>";
     return;
   }
 
-  const personId = folderIdRaw.replace('id', '');
+  // Extract numeric ID from folder name
+  const personIdMatch = folderId.match(/^id(\d+)/);
+  const personId = personIdMatch ? personIdMatch[1] : null;
+
+  if (!personId) {
+    document.body.innerHTML = "<h2>Invalid person ID.</h2>";
+    return;
+  }
 
   // Load family data
   fetch('data/family_data.json')
@@ -58,10 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.innerHTML = `<h2>No person with ID ${personId} found.</h2>`;
         return;
       }
-
-      // Compute the GitHub-safe folder name
-      const nameSafe = person.Name.toLowerCase().replace(/\W+/g, '_');
-      const folderId = `id${personId}_${nameSafe}`;
 
       // Fill header info
       document.getElementById('name').textContent = `${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}`;

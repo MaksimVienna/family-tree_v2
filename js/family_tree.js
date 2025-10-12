@@ -72,7 +72,7 @@ const applyFinalLayout = (data, width) => {
                     person.y = +person.Generation * CONFIG.BASE_Y_UNIT + CONFIG.NODE_RADIUS;
                     person.r = CONFIG.NODE_RADIUS;
 
-                    // compute folderId for each person
+                    // compute GitHub-safe folderId
                     const nameSafe = person.Name ? person.Name.toLowerCase().replace(/\W+/g, '_') : '';
                     person.folderId = `id${person.PersonID}_${nameSafe}`;
                 }
@@ -95,7 +95,6 @@ const applyFinalLayout = (data, width) => {
 d3.json("data/family_data.json").then(familyData => {
     applyFinalLayout(familyData, width).then(result => {
         const { data, maxLayoutX, maxLayoutY } = result;
-
         const scale = Math.min(width / maxLayoutX, height / maxLayoutY) * 0.95;
 
         // ==================== PARTNER LINES ====================
@@ -118,9 +117,8 @@ d3.json("data/family_data.json").then(familyData => {
             }
         });
 
-        // ==================== CURVED PARENT → CHILD CONNECTIONS ====================
+        // ==================== PARENT → CHILD CONNECTIONS ====================
         const genGroups = d3.group(data, d => d.Generation);
-
         genGroups.forEach(nodes => {
             function drawParentDroplet(g, parentNodes) {
                 if (!parentNodes || parentNodes.length === 0) return null;
@@ -217,10 +215,10 @@ d3.json("data/family_data.json").then(familyData => {
             .attr("transform", d => `translate(${d.x},${d.y})`)
             .style("cursor", "pointer")
             .on("click", function(event, d) {
-    if (!d.PersonID) return;
-    window.open(`../person.html?id=id${d.PersonID}`, "_blank"); // numeric ID only
-});
-
+                if (!d.PersonID) return;
+                // Use GitHub-safe folderId
+                window.open(`../person.html?id=${d.folderId}`, "_blank");
+            });
 
         nodeGroup.append("circle")
             .attr("r", d => d.r || CONFIG.NODE_RADIUS)
