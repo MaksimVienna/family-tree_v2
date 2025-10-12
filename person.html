@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Gallery images
       const imgDiv = document.getElementById('bio-images');
-      const galleryImages = person.Other_photo ? person.Other_photo.split(",").map(s => s.trim()).filter(s => s).map(f => `bio/${folderId}/${f}`) : [];
+      const galleryImages = person.Other_photo ? person.Other_photo.split(",").map(s => s.trim()).filter(s => s).map(f => `../bio/${folderId}/${f}`) : [];
       imgDiv.innerHTML = galleryImages.length === 0 ? "<p>No additional images.</p>" : galleryImages.map(f => `<img src="${f}" alt="">`).join("");
 
       // --- Mini tree ---
