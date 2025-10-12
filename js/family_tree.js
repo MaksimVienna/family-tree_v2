@@ -217,7 +217,7 @@ d3.json("data/family_data.json").then(familyData => {
             .on("click", function(event, d) {
                 if (!d.PersonID) return;
                 // Use GitHub-safe folderId
-                window.open(`../person.html?id=${d.folderId}`, "_blank");
+                window.open(`person.html?id=${d.folderId}`, "_blank");
             });
 
         nodeGroup.append("circle")
@@ -252,7 +252,7 @@ d3.json("data/family_data.json").then(familyData => {
         // ==================== MARK NODES WITH BIO PAGES ====================
         nodeGroup.each(function(d) {
             if (!d.PersonID) return;
-            const txtFilePath = `../bio/${d.folderId}/${d.folderId}.txt`;
+            const txtFilePath = `bio/${d.folderId}/${d.folderId}.txt`;
 
             fetch(txtFilePath, { method: "HEAD" })
                 .then(response => {
