@@ -23,13 +23,13 @@
   }
   img.main-photo { display: block; margin: 20px auto; max-width: 200px; border-radius: 50%; border: 3px solid #ccc; }
   .gallery img {
-  display: block;
-  max-width: 100%;      /* scale down if too wide */
-  height: auto;         /* keep aspect ratio */
-  margin: 10px auto;    /* center each image */
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 10px auto;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
 
   /* Mini-tree CSS */
   #mini-tree {
@@ -110,7 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(err => { console.error(err); document.body.innerHTML = "<h2>Error loading person data.</h2>"; });
 
-  // --- Mini-tree function ---
   function loadMiniTree(familyData, highlightId) {
     const svg = d3.select("#mini-tree");
     svg.selectAll("*").remove();
@@ -185,12 +184,45 @@ document.addEventListener("DOMContentLoaded", () => {
         .attr("cx", d => d.x).attr("cy", d => d.y)
         .attr("r", d => d.PersonID.toString() === highlightId ? 5 : 3)
         .attr("fill", d => d.PersonID.toString() === highlightId ? "red" : "#555");
+
+      // --- Adjust mini-tree position ---
+      adjustMiniTreePosition();
     };
 
     orderScript.onload = () => { orderLoaded = true; tryBuild(); };
     coordsScript.onload = () => { coordsLoaded = true; tryBuild(); };
     document.head.appendChild(orderScript);
     document.head.appendChild(coordsScript);
+
+    // --- Dynamic position function ---
+function adjustMiniTreePosition() {
+  const miniTree = document.getElementById("mini-tree");
+  const bio = document.querySelector(".bio");
+
+  const miniTreeWidth = 300; // fixed width
+  const bioRect = bio.getBoundingClientRect();
+
+  // Use viewport width, not body width
+  if (bioRect.right + miniTreeWidth + 20 > window.innerWidth) {
+    // Not enough space → move tree below and center
+    miniTree.style.position = "static";
+    miniTree.style.margin = "20px auto"; // vertical + horizontal centering
+    miniTree.style.width = miniTreeWidth + "px";
+    miniTree.style.height = "200px";
+  } else {
+    // Enough space → keep fixed top-right
+    miniTree.style.position = "fixed";
+    miniTree.style.top = "10px";
+    miniTree.style.right = "10px";
+    miniTree.style.width = miniTreeWidth + "px";
+    miniTree.style.height = "200px";
+    miniTree.style.margin = "0";
+  }
+}
+
+
+    // Adjust on window resize
+    window.addEventListener("resize", adjustMiniTreePosition);
   }
 
 });
