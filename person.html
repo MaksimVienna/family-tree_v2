@@ -21,17 +21,49 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     margin-bottom: 20px;
   }
-  img.main-photo { display: block; margin: 20px auto; max-width: 200px; border-radius: 50%; border: 3px solid #ccc; }
+  img.main-photo {
+    display: block;
+    margin: 20px auto;
+    max-width: 200px;
+    border-radius: 50%;
+    border: 3px solid #ccc;
+  }
+  /* GALLERY STYLES */
+  .gallery {
+    margin-top: 20px;
+  }
   .gallery img {
     display: block;
-    max-width: 100%;
+    width: 100%;
     height: auto;
     margin: 10px auto;
     border-radius: 8px;
     border: 1px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .gallery img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   }
 
-  /* Mini-tree CSS */
+  /* Small grid layout */
+  .gallery.small {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .gallery.small img {
+    width: 100%;
+    max-width: none;
+  }
+
+  /* Large layout (like original) */
+  .gallery.large img {
+    display: block;
+    max-width: 100%;
+  }
+
   #mini-tree {
     position: fixed;
     top: 10px;
@@ -43,34 +75,49 @@
     border-radius: 8px;
     box-shadow: 0 0 5px rgba(0,0,0,0.2);
   }
+  .relation-link { text-decoration: none; }
+  .relation-link:hover { text-decoration: underline; cursor: pointer; }
+  button.toggle-btn {
+    margin: 15px 0;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #0066cc;
+    background: #f0f8ff;
+    color: #0066cc;
+    cursor: pointer;
+  }
+  button.toggle-btn:hover { background: #e0f0ff; }
 </style>
 </head>
 <body>
 
 <h1 id="name">Loading...</h1>
 <img id="main-photo" class="main-photo" src="" alt="Photo">
+<p id="birth-death" style="text-align:center; font-size:0.9em; color:#555;"></p>
 
 <div class="info" id="info"></div>
 
 <div class="bio">
   <h2>Biography</h2>
   <div id="bio-text">Loading...</div>
+  <button class="toggle-btn" id="toggle-bio" style="display:none;">Показать биографию полностью</button>
+  
   <div class="gallery" id="bio-images"></div>
+  <button class="toggle-btn" id="toggle-image-size" style="display:none;">Увеличить изображения</button>
+  
+  <div id="pdf-link"></div>
 </div>
 
-<!-- Mini family tree -->
 <svg id="mini-tree"></svg>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
-  const folderId = params.get('id');
-  if (!folderId) { document.body.innerHTML = "<h2>No person ID specified.</h2>"; return; }
-
-  const personIdMatch = folderId.match(/^id(\d+)/);
-  const personId = personIdMatch ? personIdMatch[1] : null;
-  if (!personId) { document.body.innerHTML = "<h2>Invalid person ID.</h2>"; return; }
+  const rawId = params.get('id');
+  if (!rawId) { document.body.innerHTML = "<h2>No person ID specified.</h2>"; return; }
+  const personId = rawId.replace(/^id/i, "");
+  if (!/^\d+$/.test(personId)) { document.body.innerHTML = "<h2>Invalid person ID.</h2>"; return; }
 
   fetch('data/family_data.json')
     .then(res => res.json())
@@ -78,155 +125,281 @@ document.addEventListener("DOMContentLoaded", () => {
       const person = allPeople.find(p => p.PersonID.toString() === personId);
       if (!person) { document.body.innerHTML = `<h2>No person with ID ${personId} found.</h2>`; return; }
 
+      const folderId = `id${person.PersonID}_${person.Name.toLowerCase()}`;
+
       // Header and photo
       document.getElementById('name').textContent = `${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}`;
       const mainPhoto = document.getElementById('main-photo');
       mainPhoto.src = person.Photo && person.Photo !== "" ? `images/${person.Photo}` : "https://placehold.co/200x200?text=No+Photo";
 
-      // Info box
-      document.getElementById('info').innerHTML = `
-        <p><strong>Birth:</strong> ${person.BirthDate || "—"} (${person.PlaceBirth || "Unknown"})</p>
-        <p><strong>Current place:</strong> ${person.PlaceNow || "—"}</p>
-        <p><strong>About:</strong> ${person.About || "—"}</p>
-        <p><strong>Gender:</strong> ${person.Gender || "—"}</p>
-        <p><strong>Father ID:</strong> ${person.FatherID || "—"} | <strong>Mother ID:</strong> ${person.MotherID || "—"}</p>
-        <p><strong>Partner(s):</strong> ${person.PartnerID || "—"}</p>
-        <p><strong>Children:</strong> ${person.ChildID || "—"}</p>
-      `;
+      // Birth/Death
+      function parseDate(str) {
+        if (!str || typeof str !== "string" || str === "?") return null;
+        const parts = str.split(".");
+        if (parts.length !== 3) return null;
+        return new Date(+parts[2], parts[1]-1, +parts[0]);
+      }
+      function calculateAge(birth, death) {
+        const birthDate = parseDate(birth);
+        const endDate = death ? parseDate(death) : new Date();
+        if (!birthDate || !endDate) return "";
+        let age = endDate.getFullYear() - birthDate.getFullYear();
+        const m = endDate.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && endDate.getDate() < birthDate.getDate())) age--;
+        return age;
+      }
 
-      // Biography
-      fetch(`bio/${folderId}/${folderId}.txt`)
-        .then(resp => resp.ok ? resp.text() : "")
-        .then(txt => { document.getElementById('bio-text').textContent = txt || "No biography text available."; })
-        .catch(() => { document.getElementById('bio-text').textContent = "No biography text found."; });
-
-      // Gallery images
-      const imgDiv = document.getElementById('bio-images');
-      const galleryImages = person.Other_photo ? person.Other_photo.split(",").map(s => s.trim()).filter(s => s).map(f => `bio/${folderId}/${f}`) : [];
-      imgDiv.innerHTML = galleryImages.length === 0 ? "<p>No additional images.</p>" : galleryImages.map(f => `<img src="${f}" alt="">`).join("");
-
-      // --- Mini tree ---
-      loadMiniTree(allPeople, personId);
-    })
-    .catch(err => { console.error(err); document.body.innerHTML = "<h2>Error loading person data.</h2>"; });
-
-  function loadMiniTree(familyData, highlightId) {
-    const svg = d3.select("#mini-tree");
-    svg.selectAll("*").remove();
-    const g = svg.append("g");
-    const width = +svg.attr("width") || 300;
-    const height = +svg.attr("height") || 200;
-
-    const orderScript = document.createElement("script");
-    orderScript.src = "data/manual_order_regrouped.js";
-    const coordsScript = document.createElement("script");
-    coordsScript.src = "data/final_x_coordinates.js";
-
-    let orderLoaded = false, coordsLoaded = false;
-
-    const tryBuild = () => {
-      if (!orderLoaded || !coordsLoaded) return;
-      if (typeof manualOrderFull === "undefined" || typeof finalXCoordinates === "undefined") return;
-
-      const scaleX = d3.scaleLinear()
-        .domain([d3.min(Object.values(finalXCoordinates).flat()), d3.max(Object.values(finalXCoordinates).flat())])
-        .range([10, width - 10]);
-
-      const genGroups = d3.group(familyData, d => d.Generation);
-      genGroups.forEach((nodes, gen) => {
-        const orderedIds = manualOrderFull[gen];
-        const coords = finalXCoordinates[gen];
-        if (!orderedIds || !coords) return;
-        for (let i = 0; i < Math.min(orderedIds.length, coords.length); i++) {
-          const id = orderedIds[i];
-          const p = nodes.find(n => n.PersonID.toString() === id.toString());
-          if (!p) continue;
-          p.x = scaleX(coords[i]);
-          p.y = +p.Generation * 20 + 10;
-        }
-      });
-
-      // Partner lines
-      familyData.forEach(p => {
-        if (!p.PartnerID) return;
-        p.PartnerID.toString().split(",").map(pid => pid.trim()).forEach(pid => {
-          const partner = familyData.find(f => f.PersonID.toString() === pid);
-          if (!partner || p.PersonID >= partner.PersonID) return;
-          g.append("line").attr("x1", p.x).attr("y1", p.y).attr("x2", partner.x).attr("y2", partner.y)
-            .attr("stroke", "#888").attr("stroke-width", 1);
-        });
-      });
-
-      // Parent → child lines
-      const families = {};
-      familyData.forEach(child => {
-        const fatherID = child.FatherID || "";
-        const motherID = child.MotherID || "";
-        if (!fatherID && !motherID) return;
-        const key = `${fatherID}_${motherID}`;
-        if (!families[key]) families[key] = [];
-        families[key].push(child);
-      });
-      Object.entries(families).forEach(([key, children]) => {
-        const [fatherID, motherID] = key.split("_");
-        const parents = [];
-        if (fatherID) { const f = familyData.find(p => p.PersonID.toString() === fatherID); if (f) parents.push(f); }
-        if (motherID) { const m = familyData.find(p => p.PersonID.toString() === motherID); if (m) parents.push(m); }
-        if (parents.length === 0) return;
-        const midX = d3.mean(parents, d => d.x);
-        const midY = d3.mean(parents, d => d.y);
-        children.forEach(child => g.append("line").attr("x1", midX).attr("y1", midY)
-          .attr("x2", child.x).attr("y2", child.y).attr("stroke", "#ccc").attr("stroke-width", 1));
-      });
-
-      // Nodes
-      g.selectAll("circle").data(familyData).enter().append("circle")
-        .attr("cx", d => d.x).attr("cy", d => d.y)
-        .attr("r", d => d.PersonID.toString() === highlightId ? 5 : 3)
-        .attr("fill", d => d.PersonID.toString() === highlightId ? "red" : "#555");
-
-      // --- Adjust mini-tree position ---
-      adjustMiniTreePosition();
-    };
-
-    orderScript.onload = () => { orderLoaded = true; tryBuild(); };
-    coordsScript.onload = () => { coordsLoaded = true; tryBuild(); };
-    document.head.appendChild(orderScript);
-    document.head.appendChild(coordsScript);
-
-    // --- Dynamic position function ---
-function adjustMiniTreePosition() {
-  const miniTree = document.getElementById("mini-tree");
-  const bio = document.querySelector(".bio");
-
-  const miniTreeWidth = 300; // fixed width
-  const bioRect = bio.getBoundingClientRect();
-
-  // Use viewport width, not body width
-  if (bioRect.right + miniTreeWidth + 20 > window.innerWidth) {
-    // Not enough space → move tree below and center
-    miniTree.style.position = "static";
-    miniTree.style.margin = "20px auto"; // vertical + horizontal centering
-    miniTree.style.width = miniTreeWidth + "px";
-    miniTree.style.height = "200px";
-  } else {
-    // Enough space → keep fixed top-right
-    miniTree.style.position = "fixed";
-    miniTree.style.top = "10px";
-    miniTree.style.right = "10px";
-    miniTree.style.width = miniTreeWidth + "px";
-    miniTree.style.height = "200px";
-    miniTree.style.margin = "0";
-  }
+      function pluralizeYears(age) {
+  if (typeof age !== "number" || isNaN(age)) return "";
+  const lastTwo = age % 100;
+  const lastDigit = age % 10;
+  if (lastTwo >= 11 && lastTwo <= 14) return `${age} лет`;
+  if (lastDigit === 1) return `${age} год`;
+  if (lastDigit >= 2 && lastDigit <= 4) return `${age} года`;
+  return `${age} лет`;
 }
 
 
-    // Adjust on window resize
-    window.addEventListener("resize", adjustMiniTreePosition);
-  }
+      const isAlive = !person.DeathDate || (typeof person.DeathDate === "string" && person.DeathDate.trim() === "");
+      const age = calculateAge(person.BirthDate, person.DeathDate);
+      document.getElementById('birth-death').textContent = isAlive
+  ? `${person.BirthDate || "?"} (${age ? pluralizeYears(age) : ""})`
+  : `${person.BirthDate || "?"} – ${person.DeathDate || "?"} (${age ? pluralizeYears(age) : ""})`;
 
+
+      // Relatives
+      function getNameById(id) {
+        if (!id) return "—";
+        const p = allPeople.find(x => x.PersonID.toString() === id.toString());
+        if (!p) return id;
+        const firstName = p["Name-ru"] || p.Name;
+        const fullName = `${p["Name-ru"] || p.Name} ${p["LastName-ru"] || ""}`.trim();
+        return `<a href="?id=${p.PersonID}" title="${fullName}" class="relation-link">${firstName}</a>`;
+      }
+      const fatherName  = getNameById(person.FatherID);
+      const motherName  = getNameById(person.MotherID);
+      const partnerNames = (person.PartnerID || "—").toString().split(",").map(id=>getNameById(id.trim())).join(", ");
+      const childNames = (person.ChildID || "—").toString().split(",").map(id=>getNameById(id.trim())).join(", ");
+      const siblingNames = (person.SiblingID || "—").toString().split(",").map(id=>getNameById(id.trim())).join(", ");
+      document.getElementById('info').innerHTML = `
+        <p><strong>Место рождения:</strong> ${person.PlaceBirth || "Unknown"}</p>
+        <p><strong>${isAlive ? "Сейчас живет" : "Место упокоения"}:</strong> ${isAlive ? (person.PlaceNow || "—") : (person.PlaceNow || "—")}</p>
+        <p><strong>About:</strong> ${person.About || "—"}</p>
+        <p><strong>Отец:</strong> ${fatherName} | <strong>Мать:</strong> ${motherName}</p>
+        <p><strong>Братья и сестры:</strong> ${siblingNames}</p>
+        <p><strong>${person.Gender === "M" ? "Жена" : "Муж"}:</strong> ${partnerNames}</p>
+        <p><strong>Дети:</strong> ${childNames}</p>
+      `;
+
+      // Bio + toggle
+      const bioTextDiv = document.getElementById('bio-text');
+      const bioImagesDiv = document.getElementById('bio-images');
+      const toggleBioBtn = document.getElementById('toggle-bio');
+      const toggleImageSizeBtn = document.getElementById('toggle-image-size');
+      let fullText = "", shortText = "", showingFull = false;
+      let largeImages = false;
+
+      function renderBio(txt) {
+        bioTextDiv.innerHTML = "";
+        const container = document.createElement("div");
+        container.style.padding = "20px";
+        container.style.background = "#fff";
+        container.style.borderRadius = "12px";
+        container.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
+        container.style.marginBottom = "20px";
+        bioTextDiv.appendChild(container);
+
+        txt.split(/\n+/).forEach(line=>{
+          const trimmed = line.trim();
+          if (!trimmed) return;
+          let el;
+          if (trimmed.startsWith(">")) {
+            el = document.createElement("blockquote");
+            el.textContent = trimmed.slice(1).trim();
+            el.style.margin = "1em 0";
+            el.style.paddingLeft = "1em";
+            el.style.borderLeft = "3px solid #ccc";
+            el.style.color = "#555";
+            el.style.fontStyle = "italic";
+          } else if (trimmed.length < 20 || trimmed.endsWith(":")) {
+            el = document.createElement("h2");
+            el.textContent = trimmed;
+            el.style.marginTop = "1.5em";
+            el.style.marginBottom = "0.5em";
+            el.style.fontSize = "1.4em";
+          } else {
+            el = document.createElement("p");
+            el.textContent = trimmed;
+            el.style.marginBottom = "1em";
+            el.style.lineHeight = "1.6";
+            el.style.textAlign = "justify";
+          }
+          container.appendChild(el);
+        });
+      }
+
+      // Load TXT
+      fetch(`bio/${folderId}/${folderId}.txt`)
+        .then(r=>r.ok ? r.text() : "")
+        .then(txt=>{
+          fullText = txt || "No biography text available.";
+          shortText = fullText.split("\n").slice(0,3).join("\n");
+          renderBio(shortText);
+          if(fullText.split("\n").length>3) toggleBioBtn.style.display = "inline-block";
+        }).catch(()=>{ fullText = "No biography text found."; renderBio(fullText); });
+
+      toggleBioBtn.addEventListener("click", ()=>{
+        showingFull = !showingFull;
+        toggleBioBtn.textContent = showingFull ? "Показать биографию кратко" : "Показать биографию полностью";
+        renderBio(showingFull ? fullText : shortText);
+        setTimeout(()=>loadMiniTree(allPeople, personId),50);
+      });
+
+      // Load gallery images
+      fetch(`bio/${folderId}/${folderId}.json`)
+        .then(r=>r.ok ? r.json() : {})
+        .then(data=>{
+          const images = data.images || [];
+          bioImagesDiv.innerHTML = images.length===0 ? "<p>No additional images.</p>" : "";
+          images.forEach(f=>{
+            const img = document.createElement("img");
+            img.src = `bio/${folderId}/${f}`;
+            img.alt = "Gallery Image";
+            img.onclick = ()=>window.open(img.src,"_blank");
+            bioImagesDiv.appendChild(img);
+          });
+
+          if (images.length > 0) {
+            bioImagesDiv.classList.add("small");
+            toggleImageSizeBtn.style.display = "inline-block";
+          }
+
+          // PDF link
+          fetch(`bio/${folderId}/book.pdf`, {method:'HEAD'})
+            .then(res=>{
+              if(res.ok){
+                const pdfDiv = document.getElementById('pdf-link');
+                pdfDiv.innerHTML = `<a href="bio/${folderId}/book.pdf" target="_blank">Скачать книгу "Точка отсчета" Николая Лапцевича</a>`;
+                pdfDiv.style.marginTop="15px";
+                pdfDiv.style.fontWeight="bold";
+                pdfDiv.style.color="#0066cc";
+              }
+            }).catch(()=>{});
+        });
+
+      // Toggle image size (grid vs large)
+      toggleImageSizeBtn.addEventListener("click", () => {
+        largeImages = !largeImages;
+        bioImagesDiv.classList.toggle("large", largeImages);
+        bioImagesDiv.classList.toggle("small", !largeImages);
+        toggleImageSizeBtn.textContent = largeImages ? "Уменьшить изображения" : "Увеличить изображения";
+      });
+
+      // Mini-tree
+      loadMiniTree(allPeople, personId);
+      function loadMiniTree(familyData, highlightId){
+        const svg=d3.select("#mini-tree");
+        svg.selectAll("*").remove();
+        const g = svg.append("g");
+        const width = +svg.attr("width")||300;
+        const height = +svg.attr("height")||200;
+
+        const orderScript = document.createElement("script");
+        orderScript.src = "data/manual_order_regrouped.js";
+        const coordsScript = document.createElement("script");
+        coordsScript.src = "data/final_x_coordinates.js";
+        let orderLoaded=false, coordsLoaded=false;
+        const tryBuild=()=>{
+          if(!orderLoaded||!coordsLoaded) return;
+          if(typeof manualOrderFull==="undefined"||typeof finalXCoordinates==="undefined") return;
+
+          const scaleX=d3.scaleLinear()
+            .domain([d3.min(Object.values(finalXCoordinates).flat()), d3.max(Object.values(finalXCoordinates).flat())])
+            .range([10,width-10]);
+
+          const genGroups=d3.group(familyData,d=>+d.Generation);
+          genGroups.forEach((nodes,gen)=>{
+            const orderedIds=manualOrderFull[gen];
+            const coords=finalXCoordinates[gen];
+            if(!orderedIds||!coords) return;
+            for(let i=0;i<Math.min(orderedIds.length,coords.length);i++){
+              const id=orderedIds[i];
+              const p=nodes.find(n=>n.PersonID.toString()===id.toString());
+              if(!p) continue;
+              p.x=scaleX(coords[i]);
+              p.y=+p.Generation*20+10;
+            }
+          });
+
+          // Partner lines
+          familyData.forEach(p=>{
+            if(!p.PartnerID) return;
+            p.PartnerID.toString().split(",").map(pid=>pid.trim()).forEach(pid=>{
+              const partner=familyData.find(f=>f.PersonID.toString()===pid);
+              if(!partner||p.PersonID>=partner.PersonID) return;
+              g.append("line").attr("x1",p.x).attr("y1",p.y).attr("x2",partner.x).attr("y2",partner.y)
+                .attr("stroke","#888").attr("stroke-width",1);
+            });
+          });
+
+          // Parent→child lines
+          const families={};
+          familyData.forEach(child=>{
+            const fatherID=child.FatherID||"", motherID=child.MotherID||"";
+            if(!fatherID&&!motherID) return;
+            const key=`${fatherID}_${motherID}`;
+            if(!families[key]) families[key]=[];
+            families[key].push(child);
+          });
+          Object.entries(families).forEach(([key,children])=>{
+            const [fatherID,motherID]=key.split("_");
+            const parents=[];
+            if(fatherID){ const f=familyData.find(p=>p.PersonID.toString()===fatherID); if(f) parents.push(f);}
+            if(motherID){ const m=familyData.find(p=>p.PersonID.toString()===motherID); if(m) parents.push(m);}
+            if(parents.length===0) return;
+            const midX=d3.mean(parents,d=>d.x);
+            const midY=d3.mean(parents,d=>d.y);
+            children.forEach(child=>g.append("line").attr("x1",midX).attr("y1",midY)
+              .attr("x2",child.x).attr("y2",child.y).attr("stroke","#ccc").attr("stroke-width",1));
+          });
+
+          g.selectAll("circle").data(familyData).enter().append("circle")
+            .attr("cx",d=>d.x).attr("cy",d=>d.y)
+            .attr("r",d=>d.PersonID.toString()===highlightId?5:3)
+            .attr("fill",d=>d.PersonID.toString()===highlightId?"red":"#555");
+
+          adjustMiniTreePosition();
+        };
+        orderScript.onload=()=>{ orderLoaded=true; tryBuild(); };
+        coordsScript.onload=()=>{ coordsLoaded=true; tryBuild(); };
+        document.head.appendChild(orderScript);
+        document.head.appendChild(coordsScript);
+
+        function adjustMiniTreePosition(){
+          const miniTree=document.getElementById("mini-tree");
+          const bio=document.querySelector(".bio");
+          const miniTreeWidth=300;
+          const bioRect=bio.getBoundingClientRect();
+          if(bioRect.right+miniTreeWidth+20>window.innerWidth){
+            miniTree.style.position="static";
+            miniTree.style.margin="20px auto";
+            miniTree.style.width=miniTreeWidth+"px";
+            miniTree.style.height="200px";
+          } else {
+            miniTree.style.position="fixed";
+            miniTree.style.top="10px";
+            miniTree.style.right="10px";
+            miniTree.style.width=miniTreeWidth+"px";
+            miniTree.style.height="200px";
+            miniTree.style.margin="0";
+          }
+        }
+        window.addEventListener("resize",adjustMiniTreePosition);
+      }
+
+    })
+    .catch(err=>{ console.error(err); document.body.innerHTML="<h2>Error loading person data.</h2>"; });
 });
 </script>
-
 </body>
 </html>

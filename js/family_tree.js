@@ -10,18 +10,20 @@ const CONFIG = {
 };
 
 // ==================== SVG SETUP ====================
+// Note: This script assumes d3.js is loaded and the HTML contains an <svg width="W" height="H"></svg> element.
 const svg = d3.select("svg");
 const width = +svg.attr("width");
 const height = +svg.attr("height");
 
 svg.style("background-color", "#f8f8f8")
-   .style("display", "block");
+    .style("display", "block");
 
 const g = svg.append("g");
 
 // ==================== LAYOUT FUNCTION ====================
 const applyFinalLayout = (data, width) => {
     return new Promise(resolve => {
+        // Load external data scripts (assumed to be available in a 'data/' directory)
         const orderScript = document.createElement("script");
         orderScript.src = "data/manual_order_regrouped.js";
         orderScript.onerror = () => {
@@ -51,9 +53,26 @@ const applyFinalLayout = (data, width) => {
             }
             const minX = d3.min(allX);
             const maxX = d3.max(allX);
+
+            // --- HORIZONTAL CENTERING LOGIC (Correct as previously implemented) ---
+            const treeWidth = maxX - minX;
+            // The range for the scaled x-coordinates, taking node radius into account
+            const drawRange = width - (CONFIG.NODE_RADIUS * 4); 
+            
+            // Calculate the scaling factor based on the tree width and available drawing range
+            const scaleFactor = drawRange / treeWidth;
+
+            // Calculate the total padding/empty space
+            const totalPadding = width - (treeWidth * scaleFactor + CONFIG.NODE_RADIUS * 4);
+            
+            // Calculate the offset to center the tree
+            const xOffset = CONFIG.NODE_RADIUS * 2 + totalPadding / 2;
+
             const scaleX = d3.scaleLinear()
                 .domain([minX, maxX])
-                .range([CONFIG.NODE_RADIUS * 2, width - CONFIG.NODE_RADIUS * 2]);
+                .range([0, treeWidth * scaleFactor]);
+            
+            // --- END HORIZONTAL CENTERING LOGIC ---
 
             const genGroups = d3.group(data, d => d.Generation);
             for (const [gen, nodes] of genGroups.entries()) {
@@ -67,7 +86,9 @@ const applyFinalLayout = (data, width) => {
                     const person = nodes.find(n => n.PersonID.toString() === id.toString());
                     if (!person) continue;
 
-                    const scaledX = scaleX(coords[i]);
+                    // Apply the scale and the centering offset
+                    const scaledX = scaleX(coords[i]) + xOffset;
+                    
                     person.x = scaledX;
                     person.y = +person.Generation * CONFIG.BASE_Y_UNIT + CONFIG.NODE_RADIUS;
                     person.r = CONFIG.NODE_RADIUS;
@@ -78,9 +99,20 @@ const applyFinalLayout = (data, width) => {
                 }
             }
 
-            const maxLayoutX = width;
-            const maxLayoutY = d3.max(data, d => d.y) + CONFIG.NODE_RADIUS;
-            resolve({ data, maxLayoutX, maxLayoutY });
+            // Recalculate maxLayoutX (total drawing width)
+            const maxTreeX = d3.max(data, d => d.x);
+            const minTreeX = d3.min(data, d => d.x);
+            const maxLayoutX = maxTreeX - minTreeX + CONFIG.NODE_RADIUS * 2; // + 2*R to account for the node itself
+
+            // ------------------------------------------------------------------
+            // 🎯 FIX: Incorporate the text label height into maxLayoutY
+            // The lowest element is the second text label, which has a vertical offset (dy) of +28.
+            // maxLayoutY = max node center Y + node radius + max text offset
+            // ------------------------------------------------------------------
+            const LABEL_MAX_OFFSET = 28 ; 
+            const maxLayoutY = d3.max(data, d => d.y) + CONFIG.NODE_RADIUS + LABEL_MAX_OFFSET;
+            
+            resolve({ data, maxLayoutX: maxLayoutX, maxLayoutY });
         };
 
         orderScript.onload = () => { orderLoaded = true; tryBuild(); };
@@ -95,6 +127,7 @@ const applyFinalLayout = (data, width) => {
 d3.json("data/family_data.json").then(familyData => {
     applyFinalLayout(familyData, width).then(result => {
         const { data, maxLayoutX, maxLayoutY } = result;
+        // Scale factor for fitting the content, using the newly corrected maxLayoutY
         const scale = Math.min(width / maxLayoutX, height / maxLayoutY) * 0.95;
 
         // ==================== PARTNER LINES ====================
@@ -218,11 +251,12 @@ d3.json("data/family_data.json").then(familyData => {
                 if (!d.PersonID) return;
                 // Use GitHub-safe folderId
                 // --- Open person page (works both locally and on GitHub Pages) ---
-const repoName = 'family-tree_v2';  // adjust if repo name changes
-const basePath = window.location.hostname.includes('github.io')
-  ? `/${repoName}`
-  : '.';
-window.open(`${basePath}/person.html?id=${d.folderId}`, "_blank");
+                const repoName = 'family-tree_v2';  // adjust if repo name changes
+                const basePath = window.location.hostname.includes('github.io')
+                    ? `/${repoName}`
+                    : '.';
+                //window.open(`${basePath}/person.html?id=${d.folderId}`, "_blank");
+                window.open(`${basePath}/person.html?id=${d.PersonID}`, "_blank");
 
             });
 
@@ -255,35 +289,23 @@ window.open(`${basePath}/person.html?id=${d.folderId}`, "_blank");
             .attr("fill", "#555") 
             .text(d => d.PersonID);
 
-// ==================== MARK NODES WITH BIO PAGES ====================
-// nodeGroup.each(function(d) {
-//     if (!d.PersonID) return;
-//     const txtFilePath = `bio/${d.folderId}/${d.folderId}.txt`;
-
-//     fetch(txtFilePath, { method: "HEAD" })
-//         .then(response => {
-//             if (response.ok) {
-//                 d3.select(this)
-//                     .append("circle")
-//                     .attr("r", 6)
-//                     .attr("cx", (d.r || CONFIG.NODE_RADIUS) * 0.7)
-//                     .attr("cy", -(d.r || CONFIG.NODE_RADIUS) * 0.7)
-//                     .attr("fill", "limegreen")
-//                     .attr("stroke", "#333")
-//                     .attr("stroke-width", 1);
-//             }
-//         })
-//         .catch(() => {}); 
-// });
-
-
-        // ==================== ZOOM & PAN ====================
+        // ==================== ZOOM & PAN (Centering Logic) ====================
         const zoom = d3.zoom()
             .scaleExtent([0.1, 4])
             .on("zoom", (event) => g.attr("transform", event.transform));
 
         svg.call(zoom);
-        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity.scale(scale));
+
+        // Calculate the necessary translation (Tx, Ty) for perfect centering
+        // maxLayoutX and maxLayoutY now represent the true, full dimensions of the content.
+        const tx = (width - maxLayoutX * scale) / 2;
+        const ty = (height - maxLayoutY * scale) / 2;
+
+        // Apply the initial scale and translation
+        svg.transition().duration(750).call(
+            zoom.transform, 
+            d3.zoomIdentity.translate(tx, -ty*2).scale(scale)
+        );
 
     }).catch(error => console.error("Error in layout:", error));
 });
