@@ -14,13 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # --- DEBUG STEP ADDED ---
-      - name: List Repository Contents for Debug
-        run: ls -laR
-      # ------------------------
-
-      - name: Run npm install and build
-        run: npm install && npm run build
+      # Removed 'npm install and build' step and the debug step.
+      # Since this is a static site (no package.json), we skip the build process 
+      # and deploy the static HTML/CSS/JS files directly for preview.
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

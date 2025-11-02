@@ -12,11 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Removed 'working-directory: web'. The runner will now correctly execute
-      # 'npm install && npm run build' at the repository root, where package.json lives.
-      - name: Install Dependencies and Build
-        run: npm install && npm run build
-        
+      # Removed the failing step: 'Install Dependencies and Build'.
+      # Since you do not have a package.json, we skip the build process 
+      # and deploy the static HTML/CSS/JS files directly.
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
