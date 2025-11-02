@@ -11,10 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # --- FIX APPLIED HERE: Added working-directory: web ---
-      - run: npm install && npm run build
-        working-directory: web
-      # -----------------------------------------------------
+
+      # Removed 'working-directory: web'. The runner will now correctly execute
+      # 'npm install && npm run build' at the repository root, where package.json lives.
+      - name: Install Dependencies and Build
+        run: npm install && npm run build
+        
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
