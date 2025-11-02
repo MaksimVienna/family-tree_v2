@@ -13,10 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # --- FIX APPLIED HERE: Added working-directory: web ---
-      - run: npm install && npm run build
-        working-directory: web
-      # -----------------------------------------------------
+
+      # --- DEBUG STEP ADDED ---
+      - name: List Repository Contents for Debug
+        run: ls -laR
+      # ------------------------
+
+      - name: Run npm install and build
+        run: npm install && npm run build
+        working-directory: web # This is the line we suspect is failing due to path/case error
+
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
