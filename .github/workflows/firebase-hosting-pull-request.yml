@@ -21,7 +21,6 @@ jobs:
 
       - name: Run npm install and build
         run: npm install && npm run build
-        working-directory: web # This is the line we suspect is failing due to path/case error
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
