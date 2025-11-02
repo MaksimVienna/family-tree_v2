@@ -256,23 +256,54 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // Load gallery images
-      fetch(`bio/${folderId}/${folderId}.json`)
-        .then(r=>r.ok ? r.json() : {})
-        .then(data=>{
-          const images = data.images || [];
-          bioImagesDiv.innerHTML = images.length===0 ? "<p>No additional images.</p>" : "";
-          images.forEach(f=>{
-            const img = document.createElement("img");
-            img.src = `bio/${folderId}/${f}`;
-            img.alt = "Gallery Image";
-            img.onclick = ()=>window.open(img.src,"_blank");
-            bioImagesDiv.appendChild(img);
-          });
+    // Load gallery images and videos (MODIFIED BLOCK)
+      fetch(`bio/${folderId}/${folderId}.json`)
+        .then(r=>r.ok ? r.json() : {})
+        .then(data=>{
+          const images = data.images || [];
+          
+          // Assuming video files are also listed in the 'images' array,
+          // we'll iterate through the single 'images' array and check the extension.
+          // If you modify your JSON to use a separate 'videos' key, 
+          // you'd combine both arrays here. For now, we'll keep the JSON simple:
+          
+          const allMedia = images; // We'll use the 'images' array for all files
 
-          if (images.length > 0) {
-            bioImagesDiv.classList.add("small");
-            toggleImageSizeBtn.style.display = "inline-block";
-          }
+          bioImagesDiv.innerHTML = allMedia.length===0 ? "<p>No additional images or videos.</p>" : "";
+
+          allMedia.forEach(f=>{
+            const filePath = `bio/${folderId}/${f}`;
+            const extension = f.split('.').pop().toLowerCase();
+            const isVideo = ['mp4', 'webm', 'ogg'].includes(extension);
+
+            if (isVideo) {
+              const video = document.createElement("video");
+              video.src = filePath;
+              video.controls = true; // Essential for playback control
+              video.style.display = "block";
+              video.style.width = "100%";
+              video.style.maxWidth = "600px"; // Optional: prevent massive videos on large screens
+              video.style.height = "auto";
+              video.style.margin = "10px auto";
+              video.style.borderRadius = "8px";
+              video.style.border = "1px solid #ddd"; // To match image styling
+
+              bioImagesDiv.appendChild(video);
+
+            } else {
+              const img = document.createElement("img");
+              img.src = filePath;
+              img.alt = "Gallery Image";
+              img.onclick = ()=>window.open(img.src,"_blank");
+              bioImagesDiv.appendChild(img);
+            }
+          });
+
+          if (allMedia.length > 0) {
+            bioImagesDiv.classList.add("small");
+            toggleImageSizeBtn.style.display = "inline-block";
+          }
+          // ... (PDF link loading code remains the same below)
 
           // PDF link
           fetch(`bio/${folderId}/book.pdf`, {method:'HEAD'})
