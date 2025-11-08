@@ -1,72 +1,36 @@
 name: Deploy Static Website to Yandex Cloud Object Storage
 
-# ----------------------------------------------------------------------
-# Trigger: Runs the workflow when code is pushed to the 'main' branch
-# ----------------------------------------------------------------------
 on:
   push:
     branches:
       - main
-  # Allows you to manually trigger the workflow from the GitHub Actions tab
   workflow_dispatch:
 
-# ----------------------------------------------------------------------
-# Jobs
-# ----------------------------------------------------------------------
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: Production # Optional: Use an environment for better secret management
 
     steps:
-      # 1. Checkout: Fetches the code from the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Build (Optional - uncomment if you use a build step like React/Vue/Hugo)
-      # If your static site is already built and pushed, you can skip this step.
-      #- name: Setup Node.js
-      #  uses: actions/setup-node@v4
-      #  with:
-      #    node-version: '20'
-      #- name: Install Dependencies & Build
-      #  run: |
-      #    npm install
-      #    npm run build # Change 'build' if your package.json uses a different script
-
-      # 3. Upload: Uses the Yandex Cloud action to deploy files
+      # 1. Upload: Uses the Yandex Cloud action to deploy files
       - name: Upload Static Files to Yandex Object Storage
         uses: yc-actions/yc-obj-storage-upload@v3
-        id: s3-upload
         with:
           # --- Authentication (Direct Secret Injection) ---
-          # We securely pass the Access Key ID and Secret Access Key
-          # directly using the secrets context.
-          # The key names here MUST match the names you set in GitHub Secrets.
+          # These secret names MUST match your GitHub Secrets exactly.
           yc-sa-json-credentials: |
             {
               "accessKeyId": "${{ secrets.YC_ACCESS_KEY_ID }}",
               "secretAccessKey": "${{ secrets.YC_SECRET_ACCESS_KEY }}"
             }
-
-          # --- Configuration ---
-          # 💡 REQUIRED: Replace 'YOUR-BUCKET-NAME' with your actual bucket name gg
-          bucket: family-tree-yauu
-
-          # 💡 REQUIRED: Replace 'dist/' with the path to your static files folder
-          # Examples: If you built a React app, it might be 'build/'. If it's pure HTML, it might be './'
-          root: docs/
+            
+          # 💡 REQUIRED: Replace 'YOUR-BUCKET-NAME' with your actual bucket name
+          bucket: family-tree-ya 
+          
+          # 💡 REQUIRED: Replace 'dist/' with the path to your static files folder (e.g., 'docs/')
+          root: docs/ 
 
           # Clears all existing files in the bucket before uploading new ones
           clear: true
-
-          # Optional: Sets standard caching for web assets
-          cache-control: |
-            *.css, *.js: public, max-age=31536000, immutable
-            *.html: public, max-age=300
-            * : public, max-age=60
-
-      # 4. Post-Upload Confirmation
-      - name: Deployment Success
-        run: echo "Successfully deployed files from ${{ steps.s3-upload.outputs.uploaded_path }} to bucket ${{ inputs.bucket }}"
