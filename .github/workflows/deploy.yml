@@ -34,35 +34,30 @@ jobs:
           # Add the installation path to the PATH environment variable
           echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
 
-      # 3. Deploy using Yandex Cloud CLI (yc)
-      # This step executes the deployment logic in a single shell session
+# 3. Deploy using Yandex Cloud CLI (yc)
       - name: Deploy Static Files via Yandex CLI and MinIO Client
         run: |
           # 3a. Create the credentials file from the GitHub Secret
-          # The entire single-line JSON secret is safely written to a temp file.
+          # We only use this file to parse the keys for the mc host variable.
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
           
-          # 3b. Configure Yandex CLI with the credentials
-          yc config profile create github-deployment
-          yc config set access-key-id "$(jq -r '.accessKeyId' /tmp/sa-credentials.json)"
-          yc config set secret-access-key "$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)"
-          yc config set storage-endpoint "https://storage.yandexcloud.net"
+          # 3b. (REMOVED: Faulty yc config set commands)
 
-          # 3c. Set the MinIO/S3 Host Environment Variable (used by the 'mc' command)
+          # 3c. Set the MinIO/S3 Host Environment Variable (This is the ONLY authentication required)
           export MC_HOST_s3="https://$(jq -r '.accessKeyId' /tmp/sa-credentials.json):$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)@storage.yandexcloud.net"
 
-          # 3d. Clear the bucket (equivalent to clear: true)
-          # WARNING: Replace 'YOUR-BUCKET-NAME' with your actual bucket name!
+          # 3d. Clear the bucket 
           BUCKET_NAME="family-tree-ya" 
           echo "Clearing existing content in bucket: $BUCKET_NAME"
           /usr/bin/mc rm --recursive --force s3/$BUCKET_NAME || true
 
           # 3e. Upload files recursively 
-          # WARNING: Replace 'docs/' with the correct path to your files!
           ROOT_FOLDER="docs/"
-          echo "Uploading files from $ROOT_FOLDER to $BUCKET_NAME"
+          echo "Uploading files from $ROOT_FOLDER to $BUCKET-NAME"
           /usr/bin/mc cp --recursive --attr 'Content-Type=text/html;Content-Type=text/css;Content-Type=application/javascript;Cache-Control=max-age=300' $ROOT_FOLDER s3/$BUCKET_NAME/
 
+          # Delete temporary file
+          rm /tmp/sa-credentials.json
       # 4. Post-Upload Confirmation
       - name: Deployment Success
         run: echo "Successfully deployed static files to Yandex Object Storage."
