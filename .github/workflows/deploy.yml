@@ -60,7 +60,7 @@ jobs:
 
           # 3e. Upload files recursively with correct Content-Type attributes
           ROOT_FOLDER="docs/"
-          BUCKET_NAME="YOUR-BUCKET-NAME" # (Ensure this is set correctly)
+          BUCKET_NAME="family-tree-ya" # (Ensure this is set correctly)
           
           echo "Uploading files from $ROOT_FOLDER to $BUCKET_NAME"
           
@@ -77,7 +77,7 @@ jobs:
           # Upload other files (images, PDFs, etc.)
           /usr/local/bin/mc cp --recursive \
             $ROOT_FOLDER/ s3/$BUCKET_NAME/ --exclude "*.html" --exclude "*.css" --exclude "*.js"
-            
+
       # 4. Post-Upload Confirmation
       - name: Deployment Success
         run: echo "Successfully deployed static files to Yandex Object Storage."
