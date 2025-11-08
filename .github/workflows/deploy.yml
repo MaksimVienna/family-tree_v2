@@ -57,7 +57,7 @@ jobs:
 
           # 3d. Upload files recursively with correct Content-Type attributes (Path Fix Applied)
           echo "Uploading files from $ROOT_FOLDER to $BUCKET_NAME"
-          
+
           # HTML Files: Find, strip 'docs/', and copy
           find $ROOT_FOLDER -name '*.html' -print0 | sed -z 's|docs/||g' | xargs -0 -I {} \
             /usr/local/bin/mc cp --attr 'Content-Type=text/html,Cache-Control=public,max-age=300' $ROOT_FOLDER/{} s3/$BUCKET_NAME/{}
@@ -69,9 +69,13 @@ jobs:
           # JS Files: Find, strip 'docs/', and copy
           find $ROOT_FOLDER -name '*.js' -print0 | sed -z 's|docs/||g' | xargs -0 -I {} \
             /usr/local/bin/mc cp --attr 'Content-Type=application/javascript,Cache-Control=public,max-age=31536000,immutable' $ROOT_FOLDER/{} s3/$BUCKET_NAME/{}
+
+          # NEW: JSON Files: Find, strip 'docs/', and copy with application/json Content-Type
+          find $ROOT_FOLDER -name '*.json' -print0 | sed -z 's|docs/||g' | xargs -0 -I {} \
+            /usr/local/bin/mc cp --attr 'Content-Type=application/json,Cache-Control=public,max-age=3600' $ROOT_FOLDER/{} s3/$BUCKET_NAME/{}
             
-          # Other Files (Images, Data, PDF, etc.): Uses standard recursive copy but specifies the destination subfolder
-          # NOTE: The destination path in mc cp MUST NOT start with a slash, only the bucket name.
+          # Other Files (Images, Data folder contents, PDF): Use standard recursive copy
+          # We still copy the whole data folder just in case other files are there, but the JSON file is covered above.
           /usr/local/bin/mc cp --recursive $ROOT_FOLDER/bio s3/$BUCKET_NAME/bio/ || true
           /usr/local/bin/mc cp --recursive $ROOT_FOLDER/data s3/$BUCKET_NAME/data/ || true
           /usr/local/bin/mc cp --recursive $ROOT_FOLDER/images s3/$BUCKET_NAME/images/ || true
