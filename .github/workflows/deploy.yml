@@ -14,22 +14,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 1. Upload: Uses the Yandex Cloud action to deploy files
       - name: Upload Static Files to Yandex Object Storage
         uses: yc-actions/yc-obj-storage-upload@v3
         with:
-          # --- Authentication (Direct Secret Injection) ---
-          # These secret names MUST match your GitHub Secrets exactly.
-          yc-sa-json-credentials: |
-            {
-              "accessKeyId": "${{ secrets.YC_ACCESS_KEY_ID }}",
-              "secretAccessKey": "${{ secrets.YC_SECRET_ACCESS_KEY }}"
-            }
+          # --- Authentication (Single Secret JSON) ---
+          # This line securely passes the ENTIRE JSON string (the new secret you created)
+          yc-sa-json-credentials: ${{ secrets.YC_SA_CREDENTIALS }}
             
           # 💡 REQUIRED: Replace 'YOUR-BUCKET-NAME' with your actual bucket name
           bucket: family-tree-ya 
           
-          # 💡 REQUIRED: Replace 'dist/' with the path to your static files folder (e.g., 'docs/')
+          # 💡 REQUIRED: Path to your static files folder (e.g., 'docs/')
           root: docs/ 
 
           # Clears all existing files in the bucket before uploading new ones
