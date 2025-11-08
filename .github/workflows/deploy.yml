@@ -43,41 +43,48 @@ jobs:
       # 3. Deploy using Yandex Cloud CLI (yc)
       - name: Deploy Static Files via Yandex CLI and MinIO Client
         run: |
-          # 3a. Create the credentials file from the GitHub Secret
+# 3a. Create the credentials file from the GitHub Secret
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
           
           # 3b. Configure Yandex CLI (Still useful for future diagnostics/other services)
           yc config profile create github-deployment || true
           
-          # 3c. Set the MinIO/S3 Host Environment Variable (The actual authentication for file transfer)
+          # 3c. Set the MinIO/S3 Host Environment Variable
           export MC_HOST_s3="https://$(jq -r '.accessKeyId' /tmp/sa-credentials.json):$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)@storage.yandexcloud.net"
 
           # 3d. Clear the bucket 
-          # WARNING: Replace 'YOUR-BUCKET-NAME' with your actual bucket name!
-          BUCKET_NAME="family-tree-ya" 
+          BUCKET_NAME="family-tree-ya" # Setting your detected bucket name
+          ROOT_FOLDER="docs" # No trailing slash for find
           echo "Clearing existing content in bucket: $BUCKET_NAME"
           /usr/local/bin/mc rm --recursive --force s3/$BUCKET_NAME || true
 
           # 3e. Upload files recursively with correct Content-Type attributes
-          ROOT_FOLDER="docs/"
-          BUCKET_NAME="family-tree-ya" # (Ensure this is set correctly)
-          
           echo "Uploading files from $ROOT_FOLDER to $BUCKET_NAME"
-          
-          # Upload HTML files and set Cache-Control and Content-Type
-          /usr/local/bin/mc cp --recursive \
-            --attr 'Content-Type=text/html,Cache-Control=public,max-age=300' \
-            $ROOT_FOLDER/*.html s3/$BUCKET_NAME/
 
-          # Upload CSS/JS files (immutable for performance)
-          /usr/local/bin/mc cp --recursive \
-            --attr 'Cache-Control=public,max-age=31536000,immutable' \
-            $ROOT_FOLDER/*.css $ROOT_FOLDER/*.js s3/$BUCKET_NAME/
+          # 1. HTML Files: Find all HTML files and set Content-Type: text/html
+          # Copies: docs/index.html -> s3/bucket/index.html
+          find $ROOT_FOLDER -name '*.html' -print0 | xargs -0 -I {} \
+            /usr/local/bin/mc cp --attr 'Content-Type=text/html,Cache-Control=public,max-age=300' {} s3/$BUCKET_NAME/{}
+
+          # 2. CSS Files: Find all CSS files (e.g., docs/styles/style.css) and set Content-Type: text/css
+          # Copies: docs/styles/style.css -> s3/bucket/styles/style.css
+          find $ROOT_FOLDER -name '*.css' -print0 | xargs -0 -I {} \
+            /usr/local/bin/mc cp --attr 'Content-Type=text/css,Cache-Control=public,max-age=31536000,immutable' {} s3/$BUCKET_NAME/{}
             
-          # Upload other files (images, PDFs, etc.)
-          /usr/local/bin/mc cp --recursive \
-            $ROOT_FOLDER/ s3/$BUCKET_NAME/ --exclude "*.html" --exclude "*.css" --exclude "*.js"
-
+          # 3. JS Files: Find all JS files and set Content-Type: application/javascript
+          # Copies: docs/js/family_tree.js -> s3/bucket/js/family_tree.js
+          find $ROOT_FOLDER -name '*.js' -print0 | xargs -0 -I {} \
+            /usr/local/bin/mc cp --attr 'Content-Type=application/javascript,Cache-Control=public,max-age=31536000,immutable' {} s3/$BUCKET_NAME/{}
+            
+          # 4. Other Files (Images, Data): Upload the rest of the folder structure recursively
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/bio s3/$BUCKET_NAME/bio/
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/data s3/$BUCKET_NAME/data/
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/images s3/$BUCKET_NAME/images/
+          # No need to copy styles/ and js/ again as they are covered above.
+          
+          # Final check (re-uploads index.html just to be safe about the Content-Type)
+          /usr/local/bin/mc cp --attr 'Content-Type=text/html,Cache-Control=public,max-age=300' $ROOT_FOLDER/index.html s3/$BUCKET_NAME/index.html
+          
       # 4. Post-Upload Confirmation
       - name: Deployment Success
         run: echo "Successfully deployed static files to Yandex Object Storage."
