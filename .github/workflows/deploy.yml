@@ -74,11 +74,23 @@ jobs:
           find $ROOT_FOLDER -name '*.json' -print0 | sed -z 's|docs/||g' | xargs -0 -I {} \
             /usr/local/bin/mc cp --attr 'Content-Type=application/json,Cache-Control=public,max-age=3600' $ROOT_FOLDER/{} s3/$BUCKET_NAME/{}
             
-          # Other Files (Images, Data folder contents, PDF): Use standard recursive copy
-          # We still copy the whole data folder just in case other files are there, but the JSON file is covered above.
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/bio s3/$BUCKET_NAME/bio/ || true
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/data s3/$BUCKET_NAME/data/ || true
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/images s3/$BUCKET_NAME/images/ || true
+          # 3e. Other Files (Images, Data, PDF, etc.): Uses standard recursive copy
+          echo "Copying asset folders..."
+          
+          # IMPORTANT PATH CORRECTION: Use a trailing slash on the SOURCE folder ($ROOT_FOLDER/folder/)
+          # This tells mc to copy the CONTENTS, preventing duplication (e.g., /images/images/)
+
+          # Bio Folder (docs/bio/ contents copied to s3/bucket/bio/)
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/bio/ s3/$BUCKET_NAME/bio/ || true
+          
+          # Data Folder (docs/data/ contents copied to s3/bucket/data/)
+          # NOTE: JSON files are already copied above, but this ensures other data files are copied.
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/data/ s3/$BUCKET_NAME/data/ || true
+          
+          # Images Folder (docs/images/ contents copied to s3/bucket/images/)
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/images/ s3/$BUCKET_NAME/images/ || true
+          
+          # PDFs (Already correct, copies docs/*.pdf to s3/bucket/*.pdf)
           /usr/local/bin/mc cp $ROOT_FOLDER/*.pdf s3/$BUCKET_NAME/ || true
 
       # 4. Post-Upload Confirmation
