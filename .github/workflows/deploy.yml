@@ -21,43 +21,49 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       
-      # 2. Setup Tools - Install Yandex CLI and JSON parser (jq)
-      # This step is critical as it installs the missing 'yc' command.
-      - name: Install Yandex CLI and Dependencies
+      # 2. Setup Tools - Install Yandex CLI, MinIO Client (mc), and jq
+      - name: Install Deployment Dependencies
         run: |
-          # Install 'jq' for JSON parsing
+          # 2a. Install jq (JSON parser)
           sudo apt-get update && sudo apt-get install -y jq
           
-          # Install Yandex Cloud CLI (yc)
+          # 2b. Install Yandex Cloud CLI (yc)
           curl -sS https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
           
           # Add the installation path to the PATH environment variable
           echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
 
-# 3. Deploy using Yandex Cloud CLI (yc)
+          # 2c. Install MinIO Client (mc)
+          # MinIO is used for S3-compatible file transfers
+          curl -sS https://dl.min.io/client/mc/release/linux-amd64/mc \
+            -o /usr/local/bin/mc
+          chmod +x /usr/local/bin/mc
+
+
+      # 3. Deploy using Yandex Cloud CLI (yc)
       - name: Deploy Static Files via Yandex CLI and MinIO Client
         run: |
           # 3a. Create the credentials file from the GitHub Secret
-          # We only use this file to parse the keys for the mc host variable.
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
           
-          # 3b. (REMOVED: Faulty yc config set commands)
-
-          # 3c. Set the MinIO/S3 Host Environment Variable (This is the ONLY authentication required)
+          # 3b. Configure Yandex CLI (Still useful for future diagnostics/other services)
+          yc config profile create github-deployment || true
+          
+          # 3c. Set the MinIO/S3 Host Environment Variable (The actual authentication for file transfer)
           export MC_HOST_s3="https://$(jq -r '.accessKeyId' /tmp/sa-credentials.json):$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)@storage.yandexcloud.net"
 
           # 3d. Clear the bucket 
+          # WARNING: Replace 'YOUR-BUCKET-NAME' with your actual bucket name!
           BUCKET_NAME="family-tree-ya" 
           echo "Clearing existing content in bucket: $BUCKET_NAME"
-          /usr/bin/mc rm --recursive --force s3/$BUCKET_NAME || true
+          /usr/local/bin/mc rm --recursive --force s3/$BUCKET_NAME || true
 
           # 3e. Upload files recursively 
+          # WARNING: Replace 'docs/' with the correct path to your files!
           ROOT_FOLDER="docs/"
-          echo "Uploading files from $ROOT_FOLDER to $BUCKET-NAME"
-          /usr/bin/mc cp --recursive --attr 'Content-Type=text/html;Content-Type=text/css;Content-Type=application/javascript;Cache-Control=max-age=300' $ROOT_FOLDER s3/$BUCKET_NAME/
+          echo "Uploading files from $ROOT_FOLDER to $BUCKET_NAME"
+          /usr/local/bin/mc cp --recursive --attr 'Content-Type=text/html;Content-Type=text/css;Content-Type=application/javascript;Cache-Control=max-age=300' $ROOT_FOLDER s3/$BUCKET_NAME/
 
-          # Delete temporary file
-          rm /tmp/sa-credentials.json
       # 4. Post-Upload Confirmation
       - name: Deployment Success
         run: echo "Successfully deployed static files to Yandex Object Storage."
