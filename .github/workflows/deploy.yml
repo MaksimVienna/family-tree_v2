@@ -46,8 +46,8 @@ jobs:
           # 3a. Create the credentials file from the GitHub Secret
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
           
-          # 3b. Configure MC for S3 authentication (The fix is adding --signature S3v4)
-          /usr/local/bin/mc alias set s3 --api S3 --signature S3v4 https://storage.yandexcloud.net \
+          # 3b. Configure MC for S3 authentication (The fix is using --api S3v4)
+          /usr/local/bin/mc alias set s3 --api S3v4 https://storage.yandexcloud.net \
             "$(jq -r '.accessKeyId' /tmp/sa-credentials.json)" \
             "$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)"
 
