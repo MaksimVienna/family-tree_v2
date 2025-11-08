@@ -51,7 +51,7 @@ jobs:
             }
 
           # --- Configuration ---
-          # 💡 REQUIRED: Replace 'YOUR-BUCKET-NAME' with your actual bucket name
+          # 💡 REQUIRED: Replace 'YOUR-BUCKET-NAME' with your actual bucket name gg
           bucket: family-tree-ya
 
           # 💡 REQUIRED: Replace 'dist/' with the path to your static files folder
