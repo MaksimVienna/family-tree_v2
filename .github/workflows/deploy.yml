@@ -21,14 +21,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       
-      # 2. Setup Tools
-      # Ensures 'jq' (for JSON parsing) is available
-      - name: Install Dependencies
+      # 2. Setup Tools - Install Yandex CLI and JSON parser (jq)
+      # This step is critical as it installs the missing 'yc' command.
+      - name: Install Yandex CLI and Dependencies
         run: |
+          # Install 'jq' for JSON parsing
           sudo apt-get update && sudo apt-get install -y jq
+          
+          # Install Yandex Cloud CLI (yc)
+          curl -sS https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+          
+          # Add the installation path to the PATH environment variable
+          echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
 
       # 3. Deploy using Yandex Cloud CLI (yc)
-      # This entire step executes the deployment logic in a single shell session
+      # This step executes the deployment logic in a single shell session
       - name: Deploy Static Files via Yandex CLI and MinIO Client
         run: |
           # 3a. Create the credentials file from the GitHub Secret
@@ -36,14 +43,12 @@ jobs:
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
           
           # 3b. Configure Yandex CLI with the credentials
-          # This authenticates the Service Account for all Yandex services
           yc config profile create github-deployment
           yc config set access-key-id "$(jq -r '.accessKeyId' /tmp/sa-credentials.json)"
           yc config set secret-access-key "$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)"
           yc config set storage-endpoint "https://storage.yandexcloud.net"
 
-          # 3c. Set the MinIO/S3 Host Environment Variable
-          # This authenticates the 'mc' tool (used for file transfer)
+          # 3c. Set the MinIO/S3 Host Environment Variable (used by the 'mc' command)
           export MC_HOST_s3="https://$(jq -r '.accessKeyId' /tmp/sa-credentials.json):$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)@storage.yandexcloud.net"
 
           # 3d. Clear the bucket (equivalent to clear: true)
