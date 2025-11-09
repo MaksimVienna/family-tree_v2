@@ -59,38 +59,38 @@ jobs:
           /usr/local/bin/mc mirror --overwrite --remove \
             --exclude "*" --include "*.html" \
             --attr "Content-Type=text/html,Cache-Control=public,max-age=300" \
-            $ROOT_FOLDER s3/$BUCKET_NAME
+            $ROOT_FOLDER/ s3/$BUCKET_NAME/
 
           echo "Syncing CSS files..."
           /usr/local/bin/mc mirror --overwrite --remove \
             --exclude "*" --include "*.css" \
             --attr "Content-Type=text/css,Cache-Control=public,max-age=31536000,immutable" \
-            $ROOT_FOLDER s3/$BUCKET_NAME
+            $ROOT_FOLDER/ s3/$BUCKET_NAME/
 
           echo "Syncing JS files..."
           /usr/local/bin/mc mirror --overwrite --remove \
             --exclude "*" --include "*.js" \
             --attr "Content-Type=application/javascript,Cache-Control=public,max-age=31536000,immutable" \
-            $ROOT_FOLDER s3/$BUCKET_NAME
+            $ROOT_FOLDER/ s3/$BUCKET_NAME/
 
           echo "Syncing JSON files..."
           /usr/local/bin/mc mirror --overwrite --remove \
             --exclude "*" --include "*.json" \
             --attr "Content-Type=application/json,Cache-Control=public,max-age=3600" \
-            $ROOT_FOLDER s3/$BUCKET_NAME
+            $ROOT_FOLDER/ s3/$BUCKET_NAME/
 
           # Syncing other assets (images, data, pdf, etc.)
           echo "Syncing bio folder..."
-          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/bio s3/$BUCKET_NAME/bio || true
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/bio/ s3/$BUCKET_NAME/bio/ || true
 
           echo "Syncing data folder..."
-          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/data s3/$BUCKET_NAME/data || true
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/data/ s3/$BUCKET_NAME/data/ || true
 
           echo "Syncing images folder..."
-          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/images s3/$BUCKET_NAME/images || true
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/images/ s3/$BUCKET_NAME/images/ || true
 
           echo "Syncing PDF files..."
-          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER s3/$BUCKET_NAME --exclude "*" --include "*.pdf" || true
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/ s3/$BUCKET_NAME/ --exclude "*" --include "*.pdf" || true
 
           # ------------------------------------------------------------------
           # 3d. (Optional) Enable static website mode for the bucket
