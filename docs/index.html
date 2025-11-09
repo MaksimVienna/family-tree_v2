@@ -7,88 +7,77 @@
   <link rel="stylesheet" href="styles/style.css">
 
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      background: #fff;
-    }
+    body { font-family: sans-serif; margin: 0; background: #fff; }
+    h1 { text-align: center; margin-top: 20px; }
+    svg { display: block; margin: 0 auto; }
 
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    svg {
-      display: block;
-      margin: 0 auto;
-    }
-
-    /* Floating comment button */
+    /* Floating feedback button */
     #feedback-button {
       position: fixed;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #ffcc00;
-      color: #000;
-      border: none;
+      right: 20px;
+      bottom: 20px;
       padding: 12px 18px;
-      border-radius: 8px 0 0 8px;
-      cursor: pointer;
+      border-radius: 12px;
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      font-size: 16px;
       font-weight: bold;
+      cursor: pointer;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.2s;
       z-index: 1000;
     }
+    #feedback-button:hover { background: #d6d6d6; transform: scale(1.05); }
 
-    #feedback-button:hover {
-      background: #ffdb4d;
-    }
-
-    /* Sliding form panel */
+    /* Slide-up form panel */
     #feedback-panel {
       position: fixed;
-      right: -420px; /* hidden by default */
-      top: 0;
+      right: 20px;
+      bottom: 90px;
       width: 400px;
-      height: 100%;
-      background: #fafafa;
-      box-shadow: -4px 0 12px rgba(0,0,0,0.2);
-      border-left: 1px solid #ddd;
-      transition: right 0.4s ease;
+      height: 0;
+      overflow: hidden;
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      transition: height 0.4s ease, opacity 0.3s ease;
+      opacity: 0;
       z-index: 999;
       display: flex;
       flex-direction: column;
     }
-
-    #feedback-panel.open {
-      right: 0; /* slides in */
-    }
+    #feedback-panel.open { height: 500px; opacity: 1; }
 
     #feedback-panel header {
-      background: #ffcc00;
-      color: #000;
+      background: #f1f1f1;
+      color: #333;
       text-align: center;
-      padding: 12px;
+      padding: 10px;
       font-weight: bold;
       border-bottom: 1px solid #ddd;
-    }
-
-    #feedback-panel iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-      flex-grow: 1;
+      position: relative;
     }
 
     #close-panel {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      right: 10px;
+      top: 6px;
       background: transparent;
       border: none;
-      font-size: 20px;
+      font-size: 18px;
+      color: #666;
       cursor: pointer;
+    }
+    #close-panel:hover { color: #000; }
+
+    #feedback-panel iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 0 0 12px 12px;
+      flex-grow: 1;
     }
   </style>
 </head>
@@ -98,36 +87,32 @@
   <svg width="1200" height="800"></svg>
   <script src="js/family_tree.js"></script>
 
-  <!-- Floating comment button -->
-  <button id="feedback-button">💬 Комментарий</button>
+  <!-- Floating feedback button -->
+  <button id="feedback-button">Отзыв</button>
 
-  <!-- Slide-out panel -->
+  <!-- Slide-up Google Form panel -->
   <div id="feedback-panel">
     <header>
+    <!--   Оставьте комментарий -->
       <button id="close-panel">×</button>
-      Оставьте комментарий
     </header>
-    <script src="https://forms.yandex.ru/_static/embed.js"></script>
-    <iframe src="https://forms.yandex.ru/u/6910e43984227c3bc1ef0978?iframe=1"
-            name="ya-form-6910e43984227c3bc1ef0978">
+
+    <!-- Google Form embed -->
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScGlWKhuRktkKVo_qSAufGOwmw2RXI3VkwIngWsmsPuLMByLg/viewform?embedded=true"
+            width="640" height="434" frameborder="0" marginheight="0" marginwidth="0">
+      Loading…
     </iframe>
   </div>
 
   <h3 style="text-align:center;">Замечания и пожелания пишите на savchenkomaximl@gmail.com</h3>
 
   <script>
-    // Toggle the feedback panel
     const panel = document.getElementById('feedback-panel');
     const button = document.getElementById('feedback-button');
     const closeBtn = document.getElementById('close-panel');
 
-    button.addEventListener('click', () => {
-      panel.classList.add('open');
-    });
-
-    closeBtn.addEventListener('click', () => {
-      panel.classList.remove('open');
-    });
+    button.addEventListener('click', () => { panel.classList.toggle('open'); });
+    closeBtn.addEventListener('click', () => { panel.classList.remove('open'); });
   </script>
 </body>
 </html>
