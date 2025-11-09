@@ -84,8 +84,8 @@ jobs:
           # 3d. (Optional) Enable static website mode for the bucket
           # ------------------------------------------------------------------
           # Uncomment the following lines to configure the bucket as a static site
-          $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
-            --website index=index.html,error-document=404.html
+          # $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
+          #   --website index=index.html,error-document=404.html
 
           # ------------------------------------------------------------------
           # 3e. Verify that person.html has correct metadata
