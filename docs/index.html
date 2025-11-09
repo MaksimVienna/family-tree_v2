@@ -1,15 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <title>Family Tree</title>
   <script src="js/d3.v7.min.js"></script>
   <link rel="stylesheet" href="styles/style.css">
+
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: #fff;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Floating comment button */
+    #feedback-button {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ffcc00;
+      color: #000;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 8px 0 0 8px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+      z-index: 1000;
+    }
+
+    #feedback-button:hover {
+      background: #ffdb4d;
+    }
+
+    /* Sliding form panel */
+    #feedback-panel {
+      position: fixed;
+      right: -420px; /* hidden by default */
+      top: 0;
+      width: 400px;
+      height: 100%;
+      background: #fafafa;
+      box-shadow: -4px 0 12px rgba(0,0,0,0.2);
+      border-left: 1px solid #ddd;
+      transition: right 0.4s ease;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #feedback-panel.open {
+      right: 0; /* slides in */
+    }
+
+    #feedback-panel header {
+      background: #ffcc00;
+      color: #000;
+      text-align: center;
+      padding: 12px;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #feedback-panel iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      flex-grow: 1;
+    }
+
+    #close-panel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
   <h1>Семейное древо v01.11.2025</h1>
   <svg width="1200" height="800"></svg>
   <script src="js/family_tree.js"></script>
-  <h3>Замечания и пожелания пишите на savchenkomaximl@gmail.com</h3>
+
+  <!-- Floating comment button -->
+  <button id="feedback-button">💬 Комментарий</button>
+
+  <!-- Slide-out panel -->
+  <div id="feedback-panel">
+    <header>
+      <button id="close-panel">×</button>
+      Оставьте комментарий
+    </header>
+    <script src="https://forms.yandex.ru/_static/embed.js"></script>
+    <iframe src="https://forms.yandex.ru/u/6910e43984227c3bc1ef0978?iframe=1"
+            name="ya-form-6910e43984227c3bc1ef0978">
+    </iframe>
+  </div>
+
+  <h3 style="text-align:center;">Замечания и пожелания пишите на savchenkomaximl@gmail.com</h3>
+
+  <script>
+    // Toggle the feedback panel
+    const panel = document.getElementById('feedback-panel');
+    const button = document.getElementById('feedback-button');
+    const closeBtn = document.getElementById('close-panel');
+
+    button.addEventListener('click', () => {
+      panel.classList.add('open');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      panel.classList.remove('open');
+    });
+  </script>
 </body>
 </html>
