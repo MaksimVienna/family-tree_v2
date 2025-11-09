@@ -3,6 +3,7 @@ name: Deploy Static Website with Yandex CLI
 # ----------------------------------------------------------------------
 # Trigger: Runs the workflow when code is pushed to the 'main' branch
 # ----------------------------------------------------------------------
+
 on:
   push:
     branches:
@@ -12,6 +13,7 @@ on:
 # ----------------------------------------------------------------------
 # Jobs
 # ----------------------------------------------------------------------
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -24,7 +26,6 @@ jobs:
       # 2. Setup Tools - Install Yandex CLI, MinIO Client (mc), and jq
       - name: Install Deployment Dependencies
         run: |
-          # Install 'jq' (JSON parser)
           sudo apt-get update
           sudo apt-get install -y jq
           
@@ -51,48 +52,59 @@ jobs:
             "$(jq -r '.accessKeyId' /tmp/sa-credentials.json)" \
             "$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)"
 
-          # 3c. Clear the bucket
-          echo "Clearing existing content in bucket: $BUCKET_NAME"
-          /usr/local/bin/mc rm --recursive --force s3/$BUCKET_NAME || true
+          # ------------------------------------------------------------------
+          # 3c. Sync (mirror) local docs/ to the bucket
+          # ------------------------------------------------------------------
+          echo "Syncing HTML files..."
+          /usr/local/bin/mc mirror --overwrite --remove \
+            --exclude "*" --include "*.html" \
+            --attr "Content-Type=text/html,Cache-Control=public,max-age=300" \
+            $ROOT_FOLDER s3/$BUCKET_NAME
 
-          # 3d. Upload files recursively with correct Content-Type attributes (Path Fix Applied)
-          echo "Uploading files from $ROOT_FOLDER to $BUCKET_NAME"
+          echo "Syncing CSS files..."
+          /usr/local/bin/mc mirror --overwrite --remove \
+            --exclude "*" --include "*.css" \
+            --attr "Content-Type=text/css,Cache-Control=public,max-age=31536000,immutable" \
+            $ROOT_FOLDER s3/$BUCKET_NAME
 
-          # HTML Files: Find, strip 'docs/', and copy
-          find $ROOT_FOLDER -name '*.html' -print0 | sed -z 's|docs/||g' | xargs -0 -I {} \
-            /usr/local/bin/mc cp --attr 'Content-Type=text/html,Cache-Control=public,max-age=300' $ROOT_FOLDER/{} s3/$BUCKET_NAME/{}
+          echo "Syncing JS files..."
+          /usr/local/bin/mc mirror --overwrite --remove \
+            --exclude "*" --include "*.js" \
+            --attr "Content-Type=application/javascript,Cache-Control=public,max-age=31536000,immutable" \
+            $ROOT_FOLDER s3/$BUCKET_NAME
 
-          # CSS Files: Find, strip 'docs/', and copy
-          find $ROOT_FOLDER -name '*.css' -print0 | sed -z 's|docs/||g' | xargs -0 -I {} \
-            /usr/local/bin/mc cp --attr 'Content-Type=text/css,Cache-Control=public,max-age=31536000,immutable' $ROOT_FOLDER/{} s3/$BUCKET_NAME/{}
-            
-          # JS Files: Find, strip 'docs/', and copy
-          find $ROOT_FOLDER -name '*.js' -print0 | sed -z 's|docs/||g' | xargs -0 -I {} \
-            /usr/local/bin/mc cp --attr 'Content-Type=application/javascript,Cache-Control=public,max-age=31536000,immutable' $ROOT_FOLDER/{} s3/$BUCKET_NAME/{}
+          echo "Syncing JSON files..."
+          /usr/local/bin/mc mirror --overwrite --remove \
+            --exclude "*" --include "*.json" \
+            --attr "Content-Type=application/json,Cache-Control=public,max-age=3600" \
+            $ROOT_FOLDER s3/$BUCKET_NAME
 
-          # NEW: JSON Files: Find, strip 'docs/', and copy with application/json Content-Type
-          find $ROOT_FOLDER -name '*.json' -print0 | sed -z 's|docs/||g' | xargs -0 -I {} \
-            /usr/local/bin/mc cp --attr 'Content-Type=application/json,Cache-Control=public,max-age=3600' $ROOT_FOLDER/{} s3/$BUCKET_NAME/{}
-            
-          # 3e. Other Files (Images, Data, PDF, etc.): Uses standard recursive copy
-          echo "Copying asset folders..."
-          
-          # IMPORTANT PATH CORRECTION: Use a trailing slash on the SOURCE folder ($ROOT_FOLDER/folder/)
-          # This tells mc to copy the CONTENTS, preventing duplication (e.g., /images/images/)
+          # Syncing other assets (images, data, pdf, etc.)
+          echo "Syncing bio folder..."
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/bio s3/$BUCKET_NAME/bio || true
 
-          # Bio Folder (docs/bio/ contents copied to s3/bucket/bio/)
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/bio/ s3/$BUCKET_NAME/bio/ || true
-          
-          # Data Folder (docs/data/ contents copied to s3/bucket/data/)
-          # NOTE: JSON files are already copied above, but this ensures other data files are copied.
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/data/ s3/$BUCKET_NAME/data/ || true
-          
-          # Images Folder (docs/images/ contents copied to s3/bucket/images/)
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/images/ s3/$BUCKET_NAME/images/ || true
-          
-          # PDFs (Already correct, copies docs/*.pdf to s3/bucket/*.pdf)
-          /usr/local/bin/mc cp $ROOT_FOLDER/*.pdf s3/$BUCKET_NAME/ || true
+          echo "Syncing data folder..."
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/data s3/$BUCKET_NAME/data || true
+
+          echo "Syncing images folder..."
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/images s3/$BUCKET_NAME/images || true
+
+          echo "Syncing PDF files..."
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER s3/$BUCKET_NAME --exclude "*" --include "*.pdf" || true
+
+          # ------------------------------------------------------------------
+          # 3d. (Optional) Enable static website mode for the bucket
+          # ------------------------------------------------------------------
+          # Uncomment the following lines to configure the bucket as a static site
+          $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
+            --website index=index.html,error-document=404.html
+
+          # ------------------------------------------------------------------
+          # 3e. Verify that person.html has correct metadata
+          # ------------------------------------------------------------------
+          echo "Verifying metadata for person.html..."
+          /usr/local/bin/mc stat s3/$BUCKET_NAME/person.html || echo "person.html not found yet"
 
       # 4. Post-Upload Confirmation
       - name: Deployment Success
-        run: echo "Successfully deployed static files to Yandex Object Storage."
+        run: echo "✅ Successfully deployed static files to Yandex Object Storage with correct Content-Types."
