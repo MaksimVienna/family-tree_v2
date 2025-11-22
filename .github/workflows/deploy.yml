@@ -44,6 +44,10 @@ jobs:
           # Define variables
           BUCKET_NAME="family-tree-ya"
           ROOT_FOLDER="docs"
+          
+          # Define file lists for caching
+          STATIC_ASSETS="*.{jpg,jpeg,png,gif,svg,css,js,ico,woff2,ttf,pdf,mp4}"
+          HTML_AND_JSON="*.{html,json}"
 
           # 3a. Create the credentials file from the GitHub Secret
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
@@ -54,43 +58,52 @@ jobs:
             "$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)"
 
           # ------------------------------------------------------------------
-          # 3c. STEP 1: Deploy/Sync STATIC ASSETS (Long Cache & Cleanup) 📸
+          # 3c. STEP 1: CLEANUP (Remove ALL existing bucket contents) ⚠️
           # ------------------------------------------------------------------
-          echo "STEP 1: Syncing static assets (images, css, js) with 1-year cache and removing old files."
-          # This run handles cleanup (--remove) and sets aggressive caching for static assets.
-          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
-            --include "*.{jpg,jpeg,png,gif,svg,css,js,ico,woff2,ttf,pdf,mp4}" \
+          echo "STEP 1: Deleting all existing contents from s3/$BUCKET_NAME/ for a clean deployment..."
+          /usr/local/bin/mc rm --recursive --force s3/$BUCKET_NAME/ || true
+
+          # ------------------------------------------------------------------
+          # 3d. STEP 2: Deploy STATIC ASSETS (Long Cache) 📸
+          # ------------------------------------------------------------------
+          echo "STEP 2: Copying static assets with 1-year cache."
+          # Exclude HTML/JSON to ensure they get a different policy later.
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
+            --include "$STATIC_ASSETS" --exclude "$HTML_AND_JSON" \
             --attr Cache-Control="max-age=31536000, public, immutable"
 
           # ------------------------------------------------------------------
-          # 3d. STEP 2: Deploy/Sync HTML and Other Remaining Files (Short Cache) 📄
+          # 3e. STEP 3: Deploy HTML and JSON Files (Short Cache) 📄
           # ------------------------------------------------------------------
-          echo "STEP 2: Syncing HTML and remaining files with a 5-minute cache."
-          # This run catches HTML files, JSON, and any other unhandled content.
-          # It uses a short cache to ensure prompt content updates (e.g., HTML structure changes).
-          /usr/local/bin/mc mirror --overwrite $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
-            --exclude "*.{jpg,jpeg,png,gif,svg,css,js,ico,woff2,ttf,pdf,mp4}" \
+          echo "STEP 3: Copying HTML and JSON files with 5-minute cache."
+          # Explicitly include HTML/JSON files and exclude everything else.
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
+            --include "$HTML_AND_JSON" --exclude "*" \
             --attr Cache-Control="max-age=300, public, must-revalidate"
 
           # ------------------------------------------------------------------
-          # 3e. STEP 3: SET PUBLIC POLICY
+          # 3f. STEP 4: Deploy ALL REMAINING FILES (Default/Short Cache) 🧩
           # ------------------------------------------------------------------
-          echo "STEP 3: Setting public download policy on the bucket."
+          echo "STEP 4: Copying all remaining files (e.g., config) with default short cache."
+          # This step catches any file types missed by the includes above and ensures they are uploaded.
+          # We apply a conservative short cache here for safety.
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
+            --exclude "$STATIC_ASSETS" --exclude "$HTML_AND_JSON" \
+            --attr Cache-Control="max-age=300, public, must-revalidate"
+
+          # ------------------------------------------------------------------
+          # 3g. STEP 5: SET PUBLIC POLICY
+          # ------------------------------------------------------------------
+          echo "STEP 5: Setting public download policy on the bucket."
           /usr/local/bin/mc policy set download s3/$BUCKET_NAME
 
           # ------------------------------------------------------------------
-          # 3f. STEP 4: Enable static website mode
+          # 3h. STEP 6: Enable static website mode
           # ------------------------------------------------------------------
-          echo "STEP 4: Configuring bucket for static website hosting (index.html, 404.html)..."
+          echo "STEP 6: Configuring bucket for static website hosting (index.html, 404.html)..."
           $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
             --website index=index.html,error-document=404.html || true
 
-          # ------------------------------------------------------------------
-          # 3g. Verify bucket policy
-          # ------------------------------------------------------------------
-          echo "Verification: Checking the public policy set on the bucket..."
-          /usr/local/bin/mc policy get s3/$BUCKET_NAME
-
       # 4. Post-Upload Confirmation
       - name: Deployment Success
-        run: echo "✅ Successfully performed efficient, incremental deployment with optimized caching."
+        run: echo "✅ Successfully performed clean deployment with optimized caching policies."
