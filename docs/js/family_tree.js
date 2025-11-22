@@ -1,6 +1,6 @@
 // ==================== CONFIGURABLE CONSTANTS ====================
 const CONFIG = {
-    NODE_RADIUS: 20,
+    NODE_RADIUS: 30,
     BASE_Y_UNIT: 150,
     PARTNER_LINE_COLOR: "#444",
     PARTNER_LINE_WIDTH: 2,
