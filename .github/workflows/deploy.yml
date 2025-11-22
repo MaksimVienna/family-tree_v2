@@ -1,18 +1,10 @@
 name: Deploy Static Website with Yandex CLI
 
-# ----------------------------------------------------------------------
-# Trigger: Runs the workflow when code is pushed to the 'main' branch
-# ----------------------------------------------------------------------
-
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
-# ----------------------------------------------------------------------
-# Jobs
-# ----------------------------------------------------------------------
 
 jobs:
   deploy:
@@ -27,7 +19,6 @@ jobs:
       - name: Install Deployment Dependencies
         run: |
           sudo apt-get update
-          # Install jq (xargs is already on the runner)
           sudo apt-get install -y jq 
           
           # Install Yandex Cloud CLI (yc)
@@ -45,11 +36,11 @@ jobs:
           BUCKET_NAME="family-tree-ya"
           ROOT_FOLDER="docs"
           
-          # Define file lists for caching
-          # Group all files that need a SHORT cache (HTML, JSON, TXT, etc.)
-          SHORT_CACHE_FILES="*.{html,json,txt}"
-          # Group all files that need a LONG cache (Images, CSS, JS, etc.)
-          LONG_CACHE_FILES="*.{jpg,jpeg,png,gif,svg,css,js,ico,woff2,ttf,pdf,mp4}"
+          # Define file patterns for caching
+          # Files that need LONG cache (1 year)
+          LONG_CACHE_PATTERNS="*.jpg,*.jpeg,*.png,*.gif,*.svg,*.css,*.js,*.ico,*.woff2,*.ttf,*.pdf,*.mp4"
+          # Files that need SHORT cache (5 minutes)
+          SHORT_CACHE_PATTERNS="*.html,*.json,*.txt"
 
           # 3a. Create the credentials file from the GitHub Secret
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
@@ -66,34 +57,41 @@ jobs:
           /usr/local/bin/mc rm --recursive --force s3/$BUCKET_NAME/ || true
 
           # ------------------------------------------------------------------
-          # 3d. STEP 2: Deploy STATIC ASSETS (Long Cache) 📸
+          # 3d. STEP 2: FULL DEPLOYMENT (Initial Copy) 🚀
           # ------------------------------------------------------------------
-          echo "STEP 2: Copying static assets with 1-year cache. Excludes $SHORT_CACHE_FILES."
-          # Upload everything EXCEPT the short-cache files. This handles long-cache files and any others.
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
-            --exclude "$SHORT_CACHE_FILES" \
-            --attr Cache-Control="max-age=31536000, public, immutable"
+          echo "STEP 2: Copying ALL contents of $ROOT_FOLDER/ to bucket root s3/$BUCKET_NAME/."
+          # Upload everything first. Content-Type will be set correctly.
+          # We don't set Cache-Control here to avoid overwriting it later.
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/
 
           # ------------------------------------------------------------------
-          # 3e. STEP 3: Deploy HTML/JSON (Short Cache) 📄
+          # 3e. STEP 3: Apply LONG CACHE (1 Year) to Static Assets 📸
           # ------------------------------------------------------------------
-          echo "STEP 3: Copying HTML and JSON files with 5-minute cache. Excludes $LONG_CACHE_FILES."
-          # Upload everything EXCEPT the long-cache files. Since the short-cache files were already excluded
-          # from the previous step, this step ensures they are now uploaded with their correct short cache header.
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
-            --exclude "$LONG_CACHE_FILES" \
-            --attr Cache-Control="max-age=300, public, must-revalidate"
+          echo "STEP 3: Setting 1-year Cache-Control on static assets ($LONG_CACHE_PATTERNS)."
+          # Use mc find to locate the files, then pipe the list to xargs to run mc cp on each.
+          /usr/local/bin/mc find s3/$BUCKET_NAME/ \
+            --name "{${LONG_CACHE_PATTERNS}}" | xargs -I {} \
+            /usr/local/bin/mc cp {} {} --attr Cache-Control="max-age=31536000, public, immutable"
 
           # ------------------------------------------------------------------
-          # 3f. STEP 4: SET PUBLIC POLICY
+          # 3f. STEP 4: Apply SHORT CACHE (5 Minutes) to HTML/JSON 📄
           # ------------------------------------------------------------------
-          echo "STEP 4: Setting public download policy on the bucket."
+          echo "STEP 4: Setting 5-minute Cache-Control on HTML/JSON ($SHORT_CACHE_PATTERNS)."
+          # Use mc find to locate the files, then pipe the list to xargs to run mc cp on each.
+          /usr/local/bin/mc find s3/$BUCKET_NAME/ \
+            --name "{${SHORT_CACHE_PATTERNS}}" | xargs -I {} \
+            /usr/local/bin/mc cp {} {} --attr Cache-Control="max-age=300, public, must-revalidate"
+          
+          # ------------------------------------------------------------------
+          # 3g. STEP 5: SET PUBLIC POLICY
+          # ------------------------------------------------------------------
+          echo "STEP 5: Setting public download policy on the bucket."
           /usr/local/bin/mc policy set download s3/$BUCKET_NAME
 
           # ------------------------------------------------------------------
-          # 3g. STEP 5: Enable static website mode
+          # 3h. STEP 6: Enable static website mode
           # ------------------------------------------------------------------
-          echo "STEP 5: Configuring bucket for static website hosting (index.html, 404.html)..."
+          echo "STEP 6: Configuring bucket for static website hosting (index.html, 404.html)..."
           $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
             --website index=index.html,error-document=404.html || true
 
