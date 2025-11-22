@@ -139,15 +139,68 @@ document.addEventListener("DOMContentLoaded", () => {
         if (parts.length !== 3) return null;
         return new Date(+parts[2], parts[1]-1, +parts[0]);
       }
-      function calculateAge(birth, death) {
-        const birthDate = parseDate(birth);
-        const endDate = death ? parseDate(death) : new Date();
-        if (!birthDate || !endDate) return "";
-        let age = endDate.getFullYear() - birthDate.getFullYear();
+function calculateAge(birth, death) {
+    const birthDate = parsePartialDate(birth);
+    const endDate = death ? parsePartialDate(death) : new Date();
+
+    if (!birthDate || !endDate) {
+        // Safe fallback if date is invalid
+        return "";
+    }
+
+    let age = endDate.getFullYear() - birthDate.getFullYear();
+
+    // Adjust age if month and day are known
+    if (birthDate._hasMonth && birthDate._hasDay) {
         const m = endDate.getMonth() - birthDate.getMonth();
         if (m < 0 || (m === 0 && endDate.getDate() < birthDate.getDate())) age--;
-        return age;
-      }
+    }
+
+    return age;
+}
+
+/**
+ * Safely parses partial dates like "14.06.1925", "1894", "02.12.?".
+ * Returns null if the year is missing or input is invalid.
+ */
+function parsePartialDate(dateInput) {
+    if (!dateInput) return null;
+
+    // Ensure we are working with a string
+    const dateStr = String(dateInput).trim();
+    if (!dateStr) return null;
+
+    // Remove unknown placeholders like "?"
+    const cleaned = dateStr.replace(/\?/g, "");
+
+    // Split by dot
+    const parts = cleaned.split(".").map(p => parseInt(p, 10)).filter(p => !isNaN(p));
+
+    let day = 1, month = 0, year;
+
+    if (parts.length === 3) {
+        day = parts[0];
+        month = parts[1] - 1;
+        year = parts[2];
+    } else if (parts.length === 2) {
+        day = parts[0];
+        month = parts[1] - 1;
+        year = null; // cannot calculate age without year
+    } else if (parts.length === 1) {
+        year = parts[0];
+    } else {
+        return null;
+    }
+
+    if (!year) return null; // must have a year to calculate age
+
+    const date = new Date(year, month, day);
+    date._hasMonth = parts.length > 1;
+    date._hasDay = parts.length > 2;
+
+    return date;
+}
+
 
       function pluralizeYears(age) {
   if (typeof age !== "number" || isNaN(age)) return "";
@@ -432,5 +485,100 @@ document.addEventListener("DOMContentLoaded", () => {
     .catch(err=>{ console.error(err); document.body.innerHTML="<h2>Error loading person data.</h2>"; });
 });
 </script>
+
+
+<!-- Floating feedback button and Google Form panel -->
+<style>
+  /* Floating feedback button */
+  #feedback-button {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: background 0.3s, transform 0.2s;
+    z-index: 1000;
+  }
+  #feedback-button:hover { background: #d6d6d6; transform: scale(1.05); }
+
+  /* Slide-up form panel */
+  #feedback-panel {
+    position: fixed;
+    right: 20px;
+    bottom: 90px;
+    width: 400px;
+    height: 0;
+    overflow: hidden;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition: height 0.4s ease, opacity 0.3s ease;
+    opacity: 0;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+  }
+  #feedback-panel.open { height: 500px; opacity: 1; }
+
+  #feedback-panel header {
+    background: #f1f1f1;
+    color: #333;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+  }
+
+  #close-panel {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+  }
+  #close-panel:hover { color: #000; }
+
+  #feedback-panel iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0 0 12px 12px;
+    flex-grow: 1;
+  }
+</style>
+
+<button id="feedback-button">Отзыв</button>
+
+<div id="feedback-panel">
+  <header>
+    <button id="close-panel">×</button>
+  </header>
+  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScGlWKhuRktkKVo_qSAufGOwmw2RXI3VkwIngWsmsPuLMByLg/viewform?embedded=true">
+    Loading…
+  </iframe>
+</div>
+
+<script>
+  const panel = document.getElementById('feedback-panel');
+  const button = document.getElementById('feedback-button');
+  const closeBtn = document.getElementById('close-panel');
+
+  button.addEventListener('click', () => panel.classList.toggle('open'));
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+</script>
+
+
 </body>
 </html>
