@@ -27,15 +27,15 @@ jobs:
       - name: Install Deployment Dependencies
         run: |
           sudo apt-get update
-          # jq is needed for reading credentials. xargs is excluded (already available).
-          sudo apt-get install -y jq
+          # FIX: Only install jq. xargs is already present on the runner.
+          sudo apt-get install -y jq 
           
           # Install Yandex Cloud CLI (yc)
           curl -sS https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
           echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
 
           # Install MinIO Client (mc)
-          curl -sS https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
+          curl -sS https://dl.minio.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
           chmod +x /usr/local/bin/mc
 
       # 3. Deploy using Yandex Cloud CLI (yc)
@@ -63,8 +63,7 @@ jobs:
           # 3d. STEP 2: DEPLOY (Copy contents of docs/ to bucket root) 🚀
           # ------------------------------------------------------------------
           echo "STEP 2: Copying contents of $ROOT_FOLDER/ to bucket root s3/$BUCKET_NAME/..."
-          # REMOVED --overwrite, as the installed 'mc' version doesn't support it, 
-          # and the recursive copy handles replacements after the cleanup step.
+          # FIX: Removed the unsupported --overwrite flag. Recursive copy handles file replacement after cleanup.
           /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/
 
           # ------------------------------------------------------------------
@@ -95,7 +94,6 @@ jobs:
           # ------------------------------------------------------------------
           # 3f. (Optional) Enable static website mode for the bucket
           # ------------------------------------------------------------------
-          # Uncomment the following lines to configure the bucket as a static site
           # $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
           #   --website index=index.html,error-document=404.html
 
