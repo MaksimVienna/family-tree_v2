@@ -53,46 +53,55 @@ jobs:
             "$(jq -r '.secretAccessKey' /tmp/sa-credentials.json)"
 
           # ------------------------------------------------------------------
-          # 3c. Syncing files (use mc find and mc cp instead of mc mirror)
+          # 3c. Syncing files using mc mirror (Robust Sync) 🚀
           # ------------------------------------------------------------------
-          echo "Syncing HTML files..."
-          find $ROOT_FOLDER -name "*.html" -exec /usr/local/bin/mc cp --attr "Content-Type=text/html,Cache-Control=no-cache,max-age=0" {} s3/$BUCKET_NAME/{} \;
-
-          echo "Syncing CSS files..."
-          find $ROOT_FOLDER -name "*.css" -exec /usr/local/bin/mc cp --attr "Content-Type=text/css,Cache-Control=public,max-age=31536000,immutable" {} s3/$BUCKET_NAME/{} \;
-
-          echo "Syncing JS files..."
-          find $ROOT_FOLDER -name "*.js" -exec /usr/local/bin/mc cp --attr "Content-Type=application/javascript,Cache-Control=public,max-age=31536000,immutable" {} s3/$BUCKET_NAME/{} \;
-
-          echo "Syncing JSON files..."
-          find $ROOT_FOLDER -name "*.json" -exec /usr/local/bin/mc cp --attr "Content-Type=application/json,Cache-Control=public,max-age=3600" {} s3/$BUCKET_NAME/{} \;
-
-          # Syncing other assets (images, data, pdf, etc.)
-          echo "Syncing bio folder..."
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/bio/ s3/$BUCKET_NAME/bio/ || true
-
-          echo "Syncing data folder..."
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/data/ s3/$BUCKET_NAME/data/ || true
-
-          echo "Syncing images folder..."
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/images/ s3/$BUCKET_NAME/images/ || true
-
-          echo "Syncing PDF files..."
-          find $ROOT_FOLDER -name "*.pdf" -exec /usr/local/bin/mc cp {} s3/$BUCKET_NAME/{} \;
+          echo "Mirroring all files from $ROOT_FOLDER to the bucket root..."
+          # mc mirror copies all files recursively and correctly maps:
+          # docs/index.html -> s3/bucket/index.html
+          # docs/bio/file.txt -> s3/bucket/bio/file.txt
+          /usr/local/bin/mc mirror --overwrite --remove $ROOT_FOLDER/ s3/$BUCKET_NAME/
 
           # ------------------------------------------------------------------
-          # 3d. (Optional) Enable static website mode for the bucket
+          # 3d. Applying Cache Headers (Set Attributes)
+          # ------------------------------------------------------------------
+          echo "Setting Content-Type and Cache-Control headers for all synced files..."
+          
+          # HTML files: Force re-validation for instant updates
+          /usr/local/bin/mc find s3/$BUCKET_NAME --name "*.html" \
+            | xargs -n 1 /usr/local/bin/mc setattr --recursive \
+            --attr "Content-Type=text/html,Cache-Control=no-cache,max-age=0"
+
+          # CSS files: Aggressive caching for performance
+          /usr/local/bin/mc find s3/$BUCKET_NAME --name "*.css" \
+            | xargs -n 1 /usr/local/bin/mc setattr --recursive \
+            --attr "Content-Type=text/css,Cache-Control=public,max-age=31536000,immutable"
+
+          # JS files: Aggressive caching for performance
+          /usr/local/bin/mc find s3/$BUCKET_NAME --name "*.js" \
+            | xargs -n 1 /usr/local/bin/mc setattr --recursive \
+            --attr "Content-Type=application/javascript,Cache-Control=public,max-age=31536000,immutable"
+
+          # JSON files
+          /usr/local/bin/mc find s3/$BUCKET_NAME --name "*.json" \
+            | xargs -n 1 /usr/local/bin/mc setattr --recursive \
+            --attr "Content-Type=application/json,Cache-Control=public,max-age=3600"
+
+          # Note: Folders like 'bio', 'data', 'images' are copied by 'mc mirror' and do not need separate cp commands.
+          # Files like PDFs, if they exist at the root, will be handled by the default Content-Type on the bucket.
+          
+          # ------------------------------------------------------------------
+          # 3e. (Optional) Enable static website mode for the bucket
           # ------------------------------------------------------------------
           # Uncomment the following lines to configure the bucket as a static site
           # $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
           #   --website index=index.html,error-document=404.html
 
           # ------------------------------------------------------------------
-          # 3e. Verify that person.html has correct metadata
+          # 3f. Verify metadata
           # ------------------------------------------------------------------
           echo "Verifying metadata for person.html..."
           /usr/local/bin/mc stat s3/$BUCKET_NAME/person.html || echo "person.html not found yet"
 
       # 4. Post-Upload Confirmation
       - name: Deployment Success
-        run: echo "✅ Successfully deployed static files to Yandex Object Storage with correct Content-Types."
+        run: echo "✅ Successfully deployed static files to Yandex Object Storage."
