@@ -28,7 +28,7 @@ jobs:
         run: |
           sudo apt-get update
           # jq is needed for reading credentials. xargs is excluded (already available).
-          sudo apt-get install -y jq xargs 
+          sudo apt-get install -y jq
           
           # Install Yandex Cloud CLI (yc)
           curl -sS https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
