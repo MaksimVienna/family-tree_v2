@@ -98,7 +98,7 @@
 <div class="info" id="info"></div>
 
 <div class="bio">
-  <h2>Biography</h2>
+  <h2>Биография</h2>
   <div id="bio-text">Loading...</div>
   <button class="toggle-btn" id="toggle-bio" style="display:none;">Показать биографию полностью</button>
   
@@ -237,7 +237,7 @@ function parsePartialDate(dateInput) {
       document.getElementById('info').innerHTML = `
         <p><strong>Место рождения:</strong> ${person.PlaceBirth || "Unknown"}</p>
         <p><strong>${isAlive ? "Сейчас живет" : "Место упокоения"}:</strong> ${isAlive ? (person.PlaceNow || "—") : (person.PlaceNow || "—")}</p>
-        <p><strong>About:</strong> ${person.About || "—"}</p>
+        <p><strong>Обо мне:</strong> ${person.About || "—"}</p>
         <p><strong>Отец:</strong> ${fatherName} | <strong>Мать:</strong> ${motherName}</p>
         <p><strong>Братья и сестры:</strong> ${siblingNames}</p>
         <p><strong>${person.Gender === "M" ? "Жена" : "Муж"}:</strong> ${partnerNames}</p>
