@@ -63,9 +63,9 @@ jobs:
           # 3d. STEP 2: DEPLOY (Copy contents of docs/ to bucket root) 🚀
           # ------------------------------------------------------------------
           echo "STEP 2: Copying contents of $ROOT_FOLDER/ to bucket root s3/$BUCKET_NAME/..."
-          # The trailing slashes (e.g., $ROOT_FOLDER/ and s3/$BUCKET_NAME/) are CRITICAL 
-          # to ensure the *contents* of 'docs' are copied to the root, not the 'docs' folder itself.
-          /usr/local/bin/mc cp --recursive --overwrite $ROOT_FOLDER/ s3/$BUCKET_NAME/
+          # REMOVED --overwrite, as the installed 'mc' version doesn't support it, 
+          # and the recursive copy handles replacements after the cleanup step.
+          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/
 
           # ------------------------------------------------------------------
           # 3e. STEP 3: APPLY CACHE HEADERS (Including proper Content-Type)
