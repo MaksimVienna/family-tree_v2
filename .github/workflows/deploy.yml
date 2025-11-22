@@ -27,8 +27,8 @@ jobs:
       - name: Install Deployment Dependencies
         run: |
           sudo apt-get update
-          # jq is needed for reading credentials, xargs is no longer installed here.
-          sudo apt-get install -y jq 
+          # jq is needed for reading credentials. xargs is excluded (already available).
+          sudo apt-get install -y jq xargs 
           
           # Install Yandex Cloud CLI (yc)
           curl -sS https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
@@ -39,11 +39,12 @@ jobs:
           chmod +x /usr/local/bin/mc
 
       # 3. Deploy using Yandex Cloud CLI (yc)
-      - name: Deploy Static Files via Yandex CLI and MinIO Client (Cleanup Test)
+      - name: Deploy Static Files via Yandex CLI and MinIO Client
         run: |
           # Define variables
           BUCKET_NAME="family-tree-ya"
-          
+          ROOT_FOLDER="docs"
+
           # 3a. Create the credentials file from the GitHub Secret
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
           
@@ -55,15 +56,55 @@ jobs:
           # ------------------------------------------------------------------
           # 3c. STEP 1: CLEANUP (Remove ALL existing bucket contents) ⚠️
           # ------------------------------------------------------------------
-          echo "Executing CLEANUP: Deleting all existing contents from s3/$BUCKET_NAME/"
+          echo "STEP 1: Deleting all existing contents from s3/$BUCKET_NAME/ for a clean deployment..."
           /usr/local/bin/mc rm --recursive --force s3/$BUCKET_NAME/ || true
 
           # ------------------------------------------------------------------
-          # 3d. Verification Step
+          # 3d. STEP 2: DEPLOY (Copy contents of docs/ to bucket root) 🚀
           # ------------------------------------------------------------------
-          echo "Verification: Listing contents of the bucket (should be empty except for the bucket itself)..."
-          /usr/local/bin/mc ls s3/$BUCKET_NAME/
+          echo "STEP 2: Copying contents of $ROOT_FOLDER/ to bucket root s3/$BUCKET_NAME/..."
+          # The trailing slashes (e.g., $ROOT_FOLDER/ and s3/$BUCKET_NAME/) are CRITICAL 
+          # to ensure the *contents* of 'docs' are copied to the root, not the 'docs' folder itself.
+          /usr/local/bin/mc cp --recursive --overwrite $ROOT_FOLDER/ s3/$BUCKET_NAME/
+
+          # ------------------------------------------------------------------
+          # 3e. STEP 3: APPLY CACHE HEADERS (Including proper Content-Type)
+          # ------------------------------------------------------------------
+          echo "STEP 3: Setting Content-Type and Cache-Control headers..."
+          
+          # HTML files: Set Content-Type=text/html and force re-validation (no-cache)
+          /usr/local/bin/mc find s3/$BUCKET_NAME --name "*.html" \
+            | xargs -n 1 /usr/local/bin/mc setattr --recursive \
+            --attr "Content-Type=text/html,Cache-Control=no-cache,max-age=0"
+
+          # CSS files: Set Content-Type=text/css and aggressive caching
+          /usr/local/bin/mc find s3/$BUCKET_NAME --name "*.css" \
+            | xargs -n 1 /usr/local/bin/mc setattr --recursive \
+            --attr "Content-Type=text/css,Cache-Control=public,max-age=31536000,immutable"
+
+          # JS files: Set Content-Type=application/javascript and aggressive caching
+          /usr/local/bin/mc find s3/$BUCKET_NAME --name "*.js" \
+            | xargs -n 1 /usr/local/bin/mc setattr --recursive \
+            --attr "Content-Type=application/javascript,Cache-Control=public,max-age=31536000,immutable"
+
+          # JSON files: Set Content-Type=application/json
+          /usr/local/bin/mc find s3/$BUCKET_NAME --name "*.json" \
+            | xargs -n 1 /usr/local/bin/mc setattr --recursive \
+            --attr "Content-Type=application/json,Cache-Control=public,max-age=3600"
+            
+          # ------------------------------------------------------------------
+          # 3f. (Optional) Enable static website mode for the bucket
+          # ------------------------------------------------------------------
+          # Uncomment the following lines to configure the bucket as a static site
+          # $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
+          #   --website index=index.html,error-document=404.html
+
+          # ------------------------------------------------------------------
+          # 3g. Verify metadata
+          # ------------------------------------------------------------------
+          echo "Verifying metadata for index.html..."
+          /usr/local/bin/mc stat s3/$BUCKET_NAME/index.html
 
       # 4. Post-Upload Confirmation
-      - name: Cleanup Success
-        run: echo "✅ Successfully performed bucket cleanup. Check Yandex console to confirm the bucket is empty."
+      - name: Deployment Success
+        run: echo "✅ Successfully performed clean and complete deployment to Yandex Object Storage."
