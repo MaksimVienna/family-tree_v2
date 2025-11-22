@@ -487,28 +487,35 @@ function parsePartialDate(dateInput) {
 </script>
 
 
-<!-- Floating feedback button and Google Form panel -->
-<style>
-  /* Floating feedback button */
-  #feedback-button {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    padding: 12px 18px;
-    border-radius: 12px;
-    background: #e0e0e0;
-    color: #333;
-    border: none;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    transition: background 0.3s, transform 0.2s;
-    z-index: 1000;
-  }
-  #feedback-button:hover { background: #d6d6d6; transform: scale(1.05); }
 
-  /* Slide-up form panel */
+
+
+
+<!-- Floating feedback button + Google Form panel -->
+<style>
+#feedback-button {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #e0e0e0;
+  color: #333;
+  border: 1px solid red;       /* Narrow red outline */
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  z-index: 1000;
+}
+
+#feedback-button:hover {
+  background: #d6d6d6;
+  transform: scale(1.05);
+  box-shadow: 0 2px 12px rgba(255,0,0,0.5); /* subtle red glow */
+}
+
   #feedback-panel {
     position: fixed;
     right: 20px;
@@ -519,7 +526,7 @@ function parsePartialDate(dateInput) {
     background: #f9f9f9;
     border: 1px solid #ccc;
     border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     transition: height 0.4s ease, opacity 0.3s ease;
     opacity: 0;
     z-index: 999;
@@ -537,7 +544,6 @@ function parsePartialDate(dateInput) {
     border-bottom: 1px solid #ddd;
     position: relative;
   }
-
   #close-panel {
     position: absolute;
     right: 10px;
@@ -565,19 +571,49 @@ function parsePartialDate(dateInput) {
   <header>
     <button id="close-panel">×</button>
   </header>
-  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScGlWKhuRktkKVo_qSAufGOwmw2RXI3VkwIngWsmsPuLMByLg/viewform?embedded=true">
-    Loading…
-  </iframe>
+  <iframe id="feedback-iframe" src="" loading="lazy">Loading…</iframe>
 </div>
 
 <script>
   const panel = document.getElementById('feedback-panel');
   const button = document.getElementById('feedback-button');
   const closeBtn = document.getElementById('close-panel');
+  const iframe = document.getElementById('feedback-iframe');
 
+  // Google Form info
+  const formBaseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScumSfh3ZT36nc0ab-ndJ85OtnaaCzbyThXjBmhwkt-w7IokA/viewform";
+  const entryIdField = "entry.2262103661";    // Person ID field
+  const entryNameField = "entry.226210366"; // Person Name field (replace with your actual field ID) 9876543210
+
+  // Get Person ID from URL, e.g., ?id=51
+  const urlParams = new URLSearchParams(window.location.search);
+  const personId = urlParams.get('id') || "unknown";
+
+  // Fetch JSON data to get Person Name
+  fetch('data/family_data.json')
+    .then(res => res.json())
+    .then(allPeople => {
+      const person = allPeople.find(p => p.PersonID.toString() === personId.toString());
+      let personName = "unknown";
+      if (person) {
+        personName = `${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}`.trim();
+      }
+
+      // Build pre-filled Google Form URL
+      const prefillUrl = `${formBaseUrl}?${entryIdField}=${encodeURIComponent(personId)}&${entryNameField}=${encodeURIComponent(personName)}&embedded=true`;
+      iframe.src = prefillUrl;
+    })
+    .catch(err => {
+      console.error("Failed to load JSON for feedback form:", err);
+      // Fallback: pre-fill only ID
+      iframe.src = `${formBaseUrl}?${entryIdField}=${encodeURIComponent(personId)}&embedded=true`;
+    });
+
+  // Toggle panel
   button.addEventListener('click', () => panel.classList.toggle('open'));
   closeBtn.addEventListener('click', () => panel.classList.remove('open'));
 </script>
+
 
 
 </body>
