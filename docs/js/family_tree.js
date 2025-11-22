@@ -1,6 +1,6 @@
 // ==================== CONFIGURABLE CONSTANTS ====================
 const CONFIG = {
-    NODE_RADIUS: 30,
+    NODE_RADIUS: 20,
     BASE_Y_UNIT: 150,
     PARTNER_LINE_COLOR: "#444",
     PARTNER_LINE_WIDTH: 2,
@@ -10,24 +10,19 @@ const CONFIG = {
 };
 
 // ==================== SVG SETUP ====================
-// Note: This script assumes d3.js is loaded and the HTML contains an <svg width="W" height="H"></svg> element.
 const svg = d3.select("svg");
 const width = +svg.attr("width");
 const height = +svg.attr("height");
 
-svg.style("background-color", "#f8f8f8")
-    .style("display", "block");
-
+svg.style("background-color", "#f8f8f8").style("display", "block");
 const g = svg.append("g");
 
 // ==================== LAYOUT FUNCTION ====================
 const applyFinalLayout = (data, width) => {
     return new Promise(resolve => {
-        // Load external data scripts (assumed to be available in a 'data/' directory)
         const orderScript = document.createElement("script");
         orderScript.src = "data/manual_order_regrouped.js";
         orderScript.onerror = () => {
-            console.warn("manual_order_regrouped.js not found, loading manual_order.js");
             orderScript.src = "data/manual_order.js";
             document.head.appendChild(orderScript);
         };
@@ -42,37 +37,22 @@ const applyFinalLayout = (data, width) => {
             if (!orderLoaded || !coordsLoaded) return;
 
             if (typeof manualOrderFull === "undefined" || typeof finalXCoordinates === "undefined") {
-                console.error("manualOrderFull or finalXCoordinates not found.");
                 resolve({ data, maxLayoutX: width, maxLayoutY: 0 });
                 return;
             }
 
             let allX = [];
-            for (const gen in finalXCoordinates) {
-                allX = allX.concat(finalXCoordinates[gen]);
-            }
+            for (const gen in finalXCoordinates) allX = allX.concat(finalXCoordinates[gen]);
             const minX = d3.min(allX);
             const maxX = d3.max(allX);
 
-            // --- HORIZONTAL CENTERING LOGIC (Correct as previously implemented) ---
             const treeWidth = maxX - minX;
-            // The range for the scaled x-coordinates, taking node radius into account
-            const drawRange = width - (CONFIG.NODE_RADIUS * 4); 
-            
-            // Calculate the scaling factor based on the tree width and available drawing range
+            const drawRange = width - CONFIG.NODE_RADIUS * 4;
             const scaleFactor = drawRange / treeWidth;
-
-            // Calculate the total padding/empty space
             const totalPadding = width - (treeWidth * scaleFactor + CONFIG.NODE_RADIUS * 4);
-            
-            // Calculate the offset to center the tree
             const xOffset = CONFIG.NODE_RADIUS * 2 + totalPadding / 2;
 
-            const scaleX = d3.scaleLinear()
-                .domain([minX, maxX])
-                .range([0, treeWidth * scaleFactor]);
-            
-            // --- END HORIZONTAL CENTERING LOGIC ---
+            const scaleX = d3.scaleLinear().domain([minX, maxX]).range([0, treeWidth * scaleFactor]);
 
             const genGroups = d3.group(data, d => d.Generation);
             for (const [gen, nodes] of genGroups.entries()) {
@@ -86,33 +66,24 @@ const applyFinalLayout = (data, width) => {
                     const person = nodes.find(n => n.PersonID.toString() === id.toString());
                     if (!person) continue;
 
-                    // Apply the scale and the centering offset
                     const scaledX = scaleX(coords[i]) + xOffset;
-                    
                     person.x = scaledX;
                     person.y = +person.Generation * CONFIG.BASE_Y_UNIT + CONFIG.NODE_RADIUS;
                     person.r = CONFIG.NODE_RADIUS;
 
-                    // compute GitHub-safe folderId
                     const nameSafe = person.Name ? person.Name.toLowerCase().replace(/\W+/g, '_') : '';
                     person.folderId = `id${person.PersonID}_${nameSafe}`;
                 }
             }
 
-            // Recalculate maxLayoutX (total drawing width)
             const maxTreeX = d3.max(data, d => d.x);
             const minTreeX = d3.min(data, d => d.x);
-            const maxLayoutX = maxTreeX - minTreeX + CONFIG.NODE_RADIUS * 2; // + 2*R to account for the node itself
+            const maxLayoutX = maxTreeX - minTreeX + CONFIG.NODE_RADIUS * 2;
 
-            // ------------------------------------------------------------------
-            // 🎯 FIX: Incorporate the text label height into maxLayoutY
-            // The lowest element is the second text label, which has a vertical offset (dy) of +28.
-            // maxLayoutY = max node center Y + node radius + max text offset
-            // ------------------------------------------------------------------
-            const LABEL_MAX_OFFSET = 28 ; 
+            const LABEL_MAX_OFFSET = 28;
             const maxLayoutY = d3.max(data, d => d.y) + CONFIG.NODE_RADIUS + LABEL_MAX_OFFSET;
-            
-            resolve({ data, maxLayoutX: maxLayoutX, maxLayoutY });
+
+            resolve({ data, maxLayoutX, maxLayoutY });
         };
 
         orderScript.onload = () => { orderLoaded = true; tryBuild(); };
@@ -126,11 +97,9 @@ const applyFinalLayout = (data, width) => {
 // ==================== MAIN EXECUTION ====================
 d3.json("data/family_data.json").then(familyData => {
     applyFinalLayout(familyData, width).then(result => {
-        const { data, maxLayoutX, maxLayoutY } = result;
-        // Scale factor for fitting the content, using the newly corrected maxLayoutY
-        const scale = Math.min(width / maxLayoutX, height / maxLayoutY) * 0.95;
+        const { data } = result;
 
-        // ==================== PARTNER LINES ====================
+        // ==================== DRAW PARTNER LINES ====================
         data.forEach(person => {
             if (person.PartnerID) {
                 const partners = person.PartnerID.toString().split(',').map(p => p.trim());
@@ -150,19 +119,17 @@ d3.json("data/family_data.json").then(familyData => {
             }
         });
 
-        // ==================== PARENT → CHILD CONNECTIONS ====================
+        // ==================== DRAW PARENT → CHILD LINES ====================
         const genGroups = d3.group(data, d => d.Generation);
+
         genGroups.forEach(nodes => {
             function drawParentDroplet(g, parentNodes) {
-                if (!parentNodes || parentNodes.length === 0) return null;
+                if (!parentNodes?.length) return null;
 
                 const r = CONFIG.NODE_RADIUS;
                 const midX = d3.mean(parentNodes, d => d.x);
                 const midY = d3.mean(parentNodes, d => d.y);
-
-                const width = parentNodes.length === 1
-                    ? r * 2.5
-                    : Math.max(r * 5, Math.abs(parentNodes[0].x - parentNodes[1].x) + r);
+                const width = parentNodes.length === 1 ? r * 2.5 : Math.max(r * 5, Math.abs(parentNodes[0].x - parentNodes[1].x) + r);
                 const height = 1.5 * r * 2;
                 const cornerRadius = r * 0.5;
 
@@ -182,18 +149,20 @@ d3.json("data/family_data.json").then(familyData => {
             }
 
             const parentGroups = d3.groups(nodes, d => `${d.FatherID || ''}_${d.MotherID || ''}`);
+
             parentGroups.forEach(([parentKey, children]) => {
-                const parentIDs = parentKey.split("_");
+                const [fatherID, motherID] = parentKey.split("_");
                 let parentNodes = [];
-                if (parentIDs[0]) {
-                    const father = data.find(n => n.PersonID.toString() === parentIDs[0]);
-                    if (father) parentNodes.push(father);
+
+                if (fatherID) {
+                    const f = data.find(n => n.PersonID.toString() === fatherID);
+                    if (f) parentNodes.push(f);
                 }
-                if (parentIDs[1]) {
-                    const mother = data.find(n => n.PersonID.toString() === parentIDs[1]);
-                    if (mother) parentNodes.push(mother);
+                if (motherID) {
+                    const m = data.find(n => n.PersonID.toString() === motherID);
+                    if (m) parentNodes.push(m);
                 }
-                if (parentNodes.length === 0) return;
+                if (!parentNodes.length) return;
 
                 const parentBottom = drawParentDroplet(g, parentNodes);
                 if (!parentBottom) return;
@@ -230,6 +199,7 @@ d3.json("data/family_data.json").then(familyData => {
 
         // ==================== DRAW NODES ====================
         const defs = g.append("defs");
+
         defs.selectAll(".clip-circle")
             .data(data)
             .enter()
@@ -247,17 +217,10 @@ d3.json("data/family_data.json").then(familyData => {
             .attr("class", "node")
             .attr("transform", d => `translate(${d.x},${d.y})`)
             .style("cursor", "pointer")
-            .on("click", function(event, d) {
-                if (!d.PersonID) return;
-                // Use GitHub-safe folderId
-                // --- Open person page (works both locally and on GitHub Pages) ---
-                const repoName = 'family-tree_v2';  // adjust if repo name changes
-                const basePath = window.location.hostname.includes('github.io')
-                    ? `/${repoName}`
-                    : '.';
-                //window.open(`${basePath}/person.html?id=${d.folderId}`, "_blank");
+            .on("click", (event, d) => {
+                const repoName = 'family-tree_v2';
+                const basePath = window.location.hostname.includes('github.io') ? `/${repoName}` : '.';
                 window.open(`${basePath}/person.html?id=${d.PersonID}`, "_blank");
-
             });
 
         nodeGroup.append("circle")
@@ -266,9 +229,11 @@ d3.json("data/family_data.json").then(familyData => {
             .attr("stroke", "#333");
 
         nodeGroup.append("image")
-            .attr("xlink:href", d => d.Photo && d.Photo !== "" 
-                ? `images/${d.Photo}` 
-                : `https://placehold.co/${(d.r || CONFIG.NODE_RADIUS)*2}x${(d.r || CONFIG.NODE_RADIUS)*2}/bbbbbb/333333?text=?`)
+            .attr("xlink:href", d =>
+                d.Photo && d.Photo !== ""
+                    ? `images/${d.Photo}`
+                    : `https://placehold.co/${(d.r || CONFIG.NODE_RADIUS) * 2}x${(d.r || CONFIG.NODE_RADIUS) * 2}/bbbbbb/333333?text=?`
+            )
             .attr("clip-path", d => `url(#clip-${d.PersonID})`)
             .attr("x", d => -(d.r || CONFIG.NODE_RADIUS))
             .attr("y", d => -(d.r || CONFIG.NODE_RADIUS))
@@ -276,36 +241,67 @@ d3.json("data/family_data.json").then(familyData => {
             .attr("width", d => (d.r || CONFIG.NODE_RADIUS) * 2)
             .attr("preserveAspectRatio", "xMidYMid slice");
 
-        nodeGroup.append("text")
-            .attr("dy", d => (d.r || CONFIG.NODE_RADIUS) + 12)
-            .attr("text-anchor", "middle")
-            .attr("font-size", "12px")
-            .text(d => d['Name-ru']);
+        // --- Multiline name rendering ---
+const MAX_CHARS = 9;
+function splitName(name) {
+    if (!name) return [""];
+    if (name.length <= MAX_CHARS) return [name];
+    const mid = Math.floor(name.length / 2);
+    const vowels = /[aeiouауоыиэяюёе]/i;
+    // search left from mid
+    for (let i = mid; i > 1; i--) {
+        if (vowels.test(name[i])) return [name.slice(0, i), name.slice(i)];
+    }
+    // fallback split
+    return [name.slice(0, mid), name.slice(mid)];
+}
 
-        nodeGroup.append("text") 
-            .attr("dy", d => (d.r || CONFIG.NODE_RADIUS) + 28) 
-            .attr("text-anchor", "middle") 
-            .attr("font-size", "10px") 
-            .attr("fill", "#555") 
-            .text(d => d.PersonID);
+const nameGroup = nodeGroup.append("text")
+    .attr("text-anchor", "middle")
+    .attr("font-size", "12px");
 
-        // ==================== ZOOM & PAN (Centering Logic) ====================
+nameGroup.each(function(d) {
+    const lines = splitName(d['Name-ru']);
+    const r = d.r || CONFIG.NODE_RADIUS;
+    const lineHeight = 14;
+    const baseY = r + 10;
+    lines.forEach((line, i) => {
+        d3.select(this)
+            .append("tspan")
+            .attr("x", 0)
+            .attr("dy", i === 0 ? baseY : lineHeight)
+            .text(line);
+    });
+});
+
+        // ==================== ZOOM & PAN ====================
         const zoom = d3.zoom()
             .scaleExtent([0.1, 4])
-            .on("zoom", (event) => g.attr("transform", event.transform));
+            .on("zoom", event => g.attr("transform", event.transform));
 
         svg.call(zoom);
 
-        // Calculate the necessary translation (Tx, Ty) for perfect centering
-        // maxLayoutX and maxLayoutY now represent the true, full dimensions of the content.
-        const tx = (width - maxLayoutX * scale) / 2;
-        const ty = (height - maxLayoutY * scale) / 2;
+        // ==========================================================
+        // ⭐ UNIVERSAL AUTO-FIT — FINAL PERFECT VERSION
+        // ==========================================================
+        setTimeout(() => {
+            const bbox = g.node().getBBox();
 
-        // Apply the initial scale and translation
-        svg.transition().duration(750).call(
-            zoom.transform, 
-            d3.zoomIdentity.translate(tx, -ty*2).scale(scale)
-        );
+            const scale = Math.min(
+                width / bbox.width,
+                height / bbox.height
+            ) * 0.98;
+
+            const tx = (width - bbox.width * scale) / 2 - bbox.x * scale;
+            const ty = (height - bbox.height * scale) / 2 - bbox.y * scale;
+
+            svg.transition()
+                .duration(750)
+                .call(
+                    zoom.transform,
+                    d3.zoomIdentity.translate(tx, ty).scale(scale)
+                );
+        }, 0);
 
     }).catch(error => console.error("Error in layout:", error));
 });

@@ -45,7 +45,7 @@ stroke: #607D8B; / Darker Gray */
 
 /* Node labels */
 .node text {
-font: 12px sans-serif;
+font: 11px sans-serif;
 text-anchor: middle;
 pointer-events: none;
 fill: #333;
