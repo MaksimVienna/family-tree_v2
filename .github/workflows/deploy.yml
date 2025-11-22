@@ -46,8 +46,10 @@ jobs:
           ROOT_FOLDER="docs"
           
           # Define file lists for caching
-          STATIC_ASSETS="*.{jpg,jpeg,png,gif,svg,css,js,ico,woff2,ttf,pdf,mp4}"
-          HTML_AND_JSON="*.{html,json}"
+          # Group all files that need a SHORT cache (HTML, JSON, TXT, etc.)
+          SHORT_CACHE_FILES="*.{html,json,txt}"
+          # Group all files that need a LONG cache (Images, CSS, JS, etc.)
+          LONG_CACHE_FILES="*.{jpg,jpeg,png,gif,svg,css,js,ico,woff2,ttf,pdf,mp4}"
 
           # 3a. Create the credentials file from the GitHub Secret
           echo '${{ secrets.YC_SA_CREDENTIALS }}' > /tmp/sa-credentials.json
@@ -66,41 +68,32 @@ jobs:
           # ------------------------------------------------------------------
           # 3d. STEP 2: Deploy STATIC ASSETS (Long Cache) 📸
           # ------------------------------------------------------------------
-          echo "STEP 2: Copying static assets with 1-year cache."
-          # Exclude HTML/JSON to ensure they get a different policy later.
+          echo "STEP 2: Copying static assets with 1-year cache. Excludes $SHORT_CACHE_FILES."
+          # Upload everything EXCEPT the short-cache files. This handles long-cache files and any others.
           /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
-            --include "$STATIC_ASSETS" --exclude "$HTML_AND_JSON" \
+            --exclude "$SHORT_CACHE_FILES" \
             --attr Cache-Control="max-age=31536000, public, immutable"
 
           # ------------------------------------------------------------------
-          # 3e. STEP 3: Deploy HTML and JSON Files (Short Cache) 📄
+          # 3e. STEP 3: Deploy HTML/JSON (Short Cache) 📄
           # ------------------------------------------------------------------
-          echo "STEP 3: Copying HTML and JSON files with 5-minute cache."
-          # Explicitly include HTML/JSON files and exclude everything else.
+          echo "STEP 3: Copying HTML and JSON files with 5-minute cache. Excludes $LONG_CACHE_FILES."
+          # Upload everything EXCEPT the long-cache files. Since the short-cache files were already excluded
+          # from the previous step, this step ensures they are now uploaded with their correct short cache header.
           /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
-            --include "$HTML_AND_JSON" --exclude "*" \
+            --exclude "$LONG_CACHE_FILES" \
             --attr Cache-Control="max-age=300, public, must-revalidate"
 
           # ------------------------------------------------------------------
-          # 3f. STEP 4: Deploy ALL REMAINING FILES (Default/Short Cache) 🧩
+          # 3f. STEP 4: SET PUBLIC POLICY
           # ------------------------------------------------------------------
-          echo "STEP 4: Copying all remaining files (e.g., config) with default short cache."
-          # This step catches any file types missed by the includes above and ensures they are uploaded.
-          # We apply a conservative short cache here for safety.
-          /usr/local/bin/mc cp --recursive $ROOT_FOLDER/ s3/$BUCKET_NAME/ \
-            --exclude "$STATIC_ASSETS" --exclude "$HTML_AND_JSON" \
-            --attr Cache-Control="max-age=300, public, must-revalidate"
-
-          # ------------------------------------------------------------------
-          # 3g. STEP 5: SET PUBLIC POLICY
-          # ------------------------------------------------------------------
-          echo "STEP 5: Setting public download policy on the bucket."
+          echo "STEP 4: Setting public download policy on the bucket."
           /usr/local/bin/mc policy set download s3/$BUCKET_NAME
 
           # ------------------------------------------------------------------
-          # 3h. STEP 6: Enable static website mode
+          # 3g. STEP 5: Enable static website mode
           # ------------------------------------------------------------------
-          echo "STEP 6: Configuring bucket for static website hosting (index.html, 404.html)..."
+          echo "STEP 5: Configuring bucket for static website hosting (index.html, 404.html)..."
           $HOME/yandex-cloud/bin/yc storage bucket update $BUCKET_NAME \
             --website index=index.html,error-document=404.html || true
 
