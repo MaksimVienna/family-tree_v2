@@ -56,7 +56,7 @@ jobs:
           # 3c. Syncing files (use mc find and mc cp instead of mc mirror)
           # ------------------------------------------------------------------
           echo "Syncing HTML files..."
-          find $ROOT_FOLDER -name "*.html" -exec /usr/local/bin/mc cp --attr "Content-Type=text/html,Cache-Control=public,max-age=300" {} s3/$BUCKET_NAME/{} \;
+          find $ROOT_FOLDER -name "*.html" -exec /usr/local/bin/mc cp --attr "Content-Type=text/html,Cache-Control=no-cache,max-age=0" {} s3/$BUCKET_NAME/{} \;
 
           echo "Syncing CSS files..."
           find $ROOT_FOLDER -name "*.css" -exec /usr/local/bin/mc cp --attr "Content-Type=text/css,Cache-Control=public,max-age=31536000,immutable" {} s3/$BUCKET_NAME/{} \;
