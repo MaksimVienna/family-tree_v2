@@ -42,7 +42,7 @@
   {
     "PersonID": 3,
     "Name": "Sergey",
-    "Name-ru": "Сережа",
+    "Name-ru": "Сергей",
     "LastName-ru": "Савченко",
     "Gender": "M",
     "BirthDate": "20.10.1989",
@@ -62,7 +62,7 @@
   {
     "PersonID": 4,
     "Name": "Dima",
-    "Name-ru": "Димка",
+    "Name-ru": "Дмитрий",
     "LastName-ru": "Савченко",
     "Gender": "M",
     "BirthDate": "04.08.2010",
@@ -242,7 +242,7 @@
   {
     "PersonID": 13,
     "Name": "Masha",
-    "Name-ru": "Маша",
+    "Name-ru": "Мария",
     "LastName-ru": "",
     "Gender": "F",
     "BirthDate": "",

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popular Names Histogram</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        .bar {
+            fill: #7ad5ff7c;
+            transition: fill 0.3s ease;
+        }
+        .bar:hover {
+            fill: #85d4ffe0;
+        }
+
+        #chart-container {
+            padding: 10px;
+            min-height: 200px;
+            display: block;
+        }
+
+        .axis-label {
+            font-size: 14px;
+            fill: #4b5563;
+        }
+
+        .name-label {
+            font-size: 14px;
+            text-anchor: end;
+        }
+
+        .loading-message {
+            font-size: 1.25rem;
+            color: #4b5563;
+        }
+        
+    </style>
+</head>
+
+<body>
+
+    <div class="max-w-4xl mx-auto p-4">
+        <h1 class="text-xl font-bold text-gray-800 pt-1 pb-1">Наиболее популярные имена</h1>
+         <!-- <p class="text-gray-600 text-sm mb-4">Показаны все имена с частотой 2 или более.</p> -->
+
+        <div id="chart-container" class="w-full relative">
+            <div id="loading-spinner"
+                class="loading-message absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm z-10">
+                Loading data...
+            </div>
+            <svg id="histogram-svg" class="w-full"></svg>
+        </div>
+    </div>
+
+    <!-- D3 -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <script>
+        const dataFilePath = "../data/family_data.json";
+
+        // ------------------------------------------
+        // SEND HEIGHT TO PARENT
+        // ------------------------------------------
+        function sendHeightToParent() {
+            const height = document.documentElement.scrollHeight;
+            parent.postMessage(
+                { type: "histogramHeight", height: height },
+                "*"
+            );
+        }
+
+        // ------------------------------------------
+        // PROCESS DATA
+        // ------------------------------------------
+        function processData(data) {
+            const minFrequency = 2;
+
+            const nameCounts = data.reduce((acc, person) => {
+                const name = person["Name-ru"];
+                if (name && typeof name === "string" && name.trim() !== "") {
+                    acc[name] = (acc[name] || 0) + 1;
+                }
+                return acc;
+            }, {});
+
+            return Object.entries(nameCounts)
+                .map(([name, count]) => ({ name, count }))
+                .filter(d => d.count >= minFrequency)
+                .sort((a, b) => b.count - a.count);
+        }
+
+        // ------------------------------------------
+        // DRAW CHART
+        // ------------------------------------------
+        function drawChart(data) {
+            if (data.length === 0) {
+                d3.select("#chart-container")
+                    .html("<div class='loading-message text-red-500'>Нет действительных имен для отображения.</div>");
+                sendHeightToParent();
+                return;
+            }
+
+            const container = d3.select("#chart-container");
+            const svg = d3.select("#histogram-svg");
+
+            const margin = { top: 10, right: 60, bottom: 40, left: 100 };
+
+            function calculateDimensions() {
+                const containerWidth = container.node().clientWidth;
+                const width = containerWidth - margin.left - margin.right;
+                const barBandHeight = 30;
+                const innerHeight = data.length * barBandHeight;
+                const height = margin.top + innerHeight + margin.bottom;
+                return { containerWidth, width, height, innerHeight };
+            }
+
+            let { containerWidth, width, height, innerHeight } = calculateDimensions();
+
+            svg.attr("width", containerWidth)
+               .attr("height", height);
+            svg.selectAll("*").remove();
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.count)])
+                .range([0, width]);
+
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.name))
+                .range([0, innerHeight])
+                .padding(0.15);
+
+            g.append("g")
+                .attr("transform", `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(x).ticks(Math.min(5, d3.max(data, d => d.count))))
+                .attr("class", "axis-label");
+
+            g.append("text")
+                .attr("class", "axis-label font-medium")
+                .attr("x", width / 2)
+                .attr("y", innerHeight + margin.bottom - 5)
+                .attr("text-anchor", "middle")
+                .text("Число повторений");
+
+            g.append("g")
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .attr("class", "name-label font-medium text-gray-700");
+
+            g.selectAll(".bar-group")
+                .data(data)
+                .enter().append("g")
+                .attr("class", "bar-group")
+                .attr("transform", d => `translate(0,${y(d.name)})`)
+                .each(function (d) {
+                    d3.select(this).append("rect")
+                        .attr("class", "bar rounded-r")
+                        .attr("width", x(d.count))
+                        .attr("height", y.bandwidth())
+                        .attr("rx", 4)
+                        .attr("ry", 4);
+
+                    //d3.select(this).append("text")
+                    //    .attr("x", x(d.count) + 5)
+                    //    .attr("y", y.bandwidth() / 2)
+                    //    .attr("dy", ".35em")
+                    //    .attr("class", "text-sm font-semibold fill-gray-800") 
+                    //    .text(d.count); 
+                });
+
+            sendHeightToParent();
+        }
+
+        // ------------------------------------------
+        // INITIALIZE CHART
+        // ------------------------------------------
+        const loadingSpinner = document.getElementById("loading-spinner");
+
+        async function initializeChart() {
+            try {
+                const rawData = await d3.json(dataFilePath);
+
+                if (!rawData || rawData.length === 0) {
+                    loadingSpinner.innerHTML = "Error: Data file is empty or invalid.";
+                    return;
+                }
+
+                const histogramData = processData(rawData);
+
+                // Keep only the first 6 items
+const topHistogramData = histogramData.slice(0, 6);
+
+loadingSpinner.style.display = "none";
+drawChart(topHistogramData);
+
+                let resizeTimer;
+                window.addEventListener("resize", () => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => {
+                        drawChart(topHistogramData);
+                    }, 250);
+                });
+
+            } catch (error) {
+                console.error("Error loading or processing data:", error);
+                loadingSpinner.innerHTML = `Error loading data: ${error.message}`;
+            }
+        }
+
+        initializeChart();
+    </script>
+
+</body>
+</html>

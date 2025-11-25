@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback Module</title>
+    <style>
+        /* This style block contains all the CSS necessary for the button and panel */
+        body { 
+            /* Important: Ensure the body of the iframe is transparent and doesn't scroll */
+            background: transparent; 
+            margin: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Floating feedback button */
+        #feedback-button {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: #e0e0e0;
+            color: #333;
+            border: 1px solid red; 
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+            z-index: 1000;
+        }
+
+        #feedback-button:hover {
+            background: #d6d6d6;
+            transform: scale(1.05);
+            box-shadow: 0 2px 12px rgba(255,0,0,0.5);
+        }
+
+        /* Slide-up form panel */
+        #feedback-panel {
+            position: fixed;
+            right: 20px;
+            bottom: 90px;
+            width: 400px;
+            height: 0;
+            overflow: hidden;
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            transition: height 0.4s ease, opacity 0.3s ease;
+            opacity: 0;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+        }
+        #feedback-panel.open { height: 500px; opacity: 1; }
+
+        #feedback-panel header {
+            background: #f1f1f1;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+        }
+
+        #close-panel {
+            position: absolute;
+            right: 10px;
+            top: 6px;
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+        }
+        #close-panel:hover { color: #000; }
+
+        #feedback-panel iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 0 0 12px 12px;
+            flex-grow: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="feedback-button">Отзыв</button>
+
+    <div id="feedback-panel">
+        <header>
+            <button id="close-panel">×</button>
+        </header>
+        <iframe id="feedback-iframe" 
+                src="" 
+                width="640" height="434" frameborder="0" marginheight="0" marginwidth="0" 
+                loading="lazy">
+            Loading…
+        </iframe>
+    </div>
+
+    <script>
+        const panel = document.getElementById('feedback-panel');
+        const button = document.getElementById('feedback-button');
+        const closeBtn = document.getElementById('close-panel');
+        const iframe = document.getElementById('feedback-iframe');
+
+        // Google Form info
+        const formBaseUrl = "https://docs.google.com/forms/d/e/1FAIpQLScumSfh3ZT36nc0ab-ndJ85OtnaaCzbyThXjBmhwkt-w7IokA/viewform";
+        const entryIdField = "entry.226210366"; 
+        const entryNameField = "entry.9876543210"; 
+
+        // Index page placeholder values
+        const personId = "Древо"; 
+        const personName = "Index Page";
+
+        // Build pre-filled Google Form URL
+        const prefillUrl = `${formBaseUrl}?${entryIdField}=${encodeURIComponent(personId)}&${entryNameField}=${encodeURIComponent(personName)}&embedded=true`;
+        iframe.src = prefillUrl;
+
+        // Button functionality
+        button.addEventListener('click', () => panel.classList.toggle('open'));
+        closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+    </script>
+</body>
+</html>

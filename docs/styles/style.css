@@ -1,101 +1,124 @@
-/* General Body and Layout */
+/* ---------------------------------------------------- */
+/* 1. GENERAL BODY AND LAYOUT                          */
+/* ---------------------------------------------------- */
 body {
-font-family: sans-serif;
-display: flex;
-flex-direction: column;
-align-items: center;
-margin: 0;
-padding: 20px;
-background-color: #f4f4f4;
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
 }
 
 h1 {
-color: #333;
-margin-bottom: 20px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* ---------------------------------------------------- */
+/* 2. SHARED BOX STYLE                                  */
+/* ---------------------------------------------------- */
+.box-style {
+    border: 1px solid #ccc;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
 }
 
 svg {
-border: 1px solid #ccc;
-background-color: #fff;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-border-radius: 8px;
+    display: block;
+    margin: 0 auto;
 }
 
-/* Nodes (people) 
-.node circle {
-fill: lightblue;
-stroke: rgb(180, 70, 70);
-stroke-width: 2px;
-transition: all 0.2s ease;
-}*/
-
-/* Specific Gender Colors */
-.node circle.male {
-fill: #81D4FA; / Light Blue /
-stroke: #0288D1; / Darker Blue /
-}
-.node circle.female {
-fill: #F48FB1; / Light Pink /
-stroke: #D81B60; / Darker Pink /
-}
-.node circle.unknown {
-fill: #CFD8DC; / Light Gray /
-stroke: #607D8B; / Darker Gray */
+/* ---------------------------------------------------- */
+/* 3. MAIN CONTAINER AND TREE CENTERING               */
+/* ---------------------------------------------------- */
+#main-container {
+    position: relative;
+    width: 100%;
+    padding: 20px;
 }
 
-/* Node labels 
-.node text {
-font: 11px sans-serif;
-text-anchor: middle;
-pointer-events: none;
-fill: #333;
-}*/
-
-/*.name-tooltip {
-    transition: opacity 0.15s ease;
-    white-space: nowrap;
-}*/
-
-
-/* Parent-child links */
-.link.parental {
-stroke: #555;
-stroke-width: 2px;
+/* TREE WRAPPER: centers tree box itself */
+#tree-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center; /* tree always in center */
 }
 
-/* Spouse links (red dashed) */
-.link.spouse {
-stroke: red;
-stroke-width: 2px;
-stroke-dasharray: 4 2;
+/* TREE CONTAINER: fixed width */
+#tree-container {
+    flex: 0 0 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0;
 }
 
-/* Optional: hover effect */
+/* HISTOGRAM FLOATING */
+#stats-iframe-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    max-width: 300px;
+    z-index: 999;
+    transition: all 0.3s ease;
+}
+
+/* On narrow screens: stack below tree */
+#stats-iframe-container.static {
+    position: static;
+    margin: 20px auto;
+}
+
+/* ---------------------------------------------------- */
+/* 4. IFRAME STYLES                                    */
+/* ---------------------------------------------------- */
+#names-histogram-iframe {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+}
+
+#feedback-module-iframe {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 450px;
+    height: 600px;
+    border: none;
+    z-index: 1000;
+    background: transparent;
+}
+
+/* ---------------------------------------------------- */
+/* 5. FAMILY TREE D3.JS STYLES                          */
+/* ---------------------------------------------------- */
+.node circle.male { fill: #81D4FA; stroke: #0288D1; }
+.node circle.female { fill: #F48FB1; stroke: #D81B60; }
+.node circle.unknown { fill: #CFD8DC; stroke: #607D8B; }
+.link.parental { stroke: #555; stroke-width: 2px; }
+.link.spouse { stroke: red; stroke-width: 2px; stroke-dasharray: 4 2; }
 .node:hover circle {
-fill: orange;
-cursor: pointer;
-transform: scale(1.1);
-box-shadow: 0 0 1px rgba(255, 165, 0, 0.5);
+    fill: orange;
+    cursor: pointer;
+    transform: scale(1.1);
+    box-shadow: 0 0 1px rgba(255, 165, 0, 0.5);
 }
-
-/* Extra text for IDs */
-.node-id {
-font-size: 10px;
-fill: #888;
-}
-
+.node-id { font-size: 10px; fill: #888; }
 .name-tooltip {
     position: absolute;
     pointer-events: none;
     background: rgba(255, 255, 255, 0.95);
-    color: #000;                  /* make sure text is visible */
+    color: #000;
     padding: 8px 10px;
     border-radius: 4px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     font-family: sans-serif;
     font-size: 14px;
     line-height: 1.3;
-    white-space: normal;           /* allow line breaks with <br> */
+    white-space: normal;
     opacity: 0;
     transition: opacity 0.15s ease;
     z-index: 10000;
