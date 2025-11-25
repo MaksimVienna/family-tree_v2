@@ -26,6 +26,9 @@
             padding: 10px;
             min-height: 200px;
             display: block;
+
+            /* prevent scrollbars */
+            overflow: hidden; 
         }
 
         .axis-label {
@@ -115,13 +118,23 @@
             const margin = { top: 10, right: 60, bottom: 40, left: 100 };
 
             function calculateDimensions() {
-                const containerWidth = container.node().clientWidth;
-                const width = containerWidth - margin.left - margin.right;
-                const barBandHeight = 30;
-                const innerHeight = data.length * barBandHeight;
-                const height = margin.top + innerHeight + margin.bottom;
-                return { containerWidth, width, height, innerHeight };
-            }
+const containerWidth = Math.min(container.node().clientWidth, window.innerWidth - 20);
+    const width = containerWidth - margin.left - margin.right;
+    const barBandHeight = 30;
+
+    // Maximum available height
+    const maxHeight = window.innerHeight - 50;
+
+    // Calculate total height needed for all bars
+    const neededHeight = margin.top + data.length * barBandHeight + margin.bottom;
+
+    const height = Math.min(neededHeight, maxHeight);
+
+    // Adjust innerHeight to fit within the capped height
+    const innerHeight = height - margin.top - margin.bottom;
+
+    return { containerWidth, width, height, innerHeight };
+}
 
             let { containerWidth, width, height, innerHeight } = calculateDimensions();
 

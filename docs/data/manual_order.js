@@ -1,5 +1,5 @@
 const manualOrderFull = {
-  "1": ["51"], // Generation 1: left-to-right individual person order (OPTIMIZED)
+  "1": ["58", "51", "60", "59"], // Generation 1: left-to-right individual person order (OPTIMIZED)
   "2": ["32", "31", "52"], // Generation 2: left-to-right individual person order (OPTIMIZED)
   "3": ["28", "27", "30", "29", "33", "36", "34", "38", "35", "44"], // Generation 3: left-to-right individual person order (OPTIMIZED)
   "4": ["11", "10", "2", "1", "21", "22", "14", "15", "18", "19", "56", "39", "40", "53", "37", "46", "45", "48"], // Generation 4: left-to-right individual person order (OPTIMIZED)
