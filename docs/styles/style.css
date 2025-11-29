@@ -123,3 +123,26 @@ svg {
     transition: opacity 0.15s ease;
     z-index: 10000;
 }
+
+
+/* For screens smaller than 1300px: allow tree to shrink */
+@media (max-width: 1300px) {
+    #tree-container {
+        flex: 0 1 auto;   /* allow shrinking */
+        width: 100%;
+        max-width: 1200px;
+    }
+
+    /* Make the SVG responsive too */
+    #family-tree-svg {
+        width: 100% !important;
+        height: auto;       /* optional: keep aspect ratio */
+    }
+}
+
+/* For very small screens */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.4rem;
+    }
+}
