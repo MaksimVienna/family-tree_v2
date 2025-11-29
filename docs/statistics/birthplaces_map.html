@@ -9,8 +9,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
 
+    <!-- ★ Fullscreen Plugin CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.css" />
+
     <style>
-        /* CSS Reset and Font */
         html, body {
             margin: 0;
             padding: 0;
@@ -19,7 +21,6 @@
             background-color: #f4f7f9;
         }
 
-        /* Container for centering */
         .wrapper {
             display: flex;
             justify-content: center;
@@ -27,7 +28,6 @@
             padding: 0 10px;
         }
 
-        /* Map container sizing */
         #map-container {
             width: 100%;
             max-width: 900px;
@@ -35,18 +35,15 @@
             box-sizing: border-box;
         }
 
-        /* Actual map styling */
         #map {
             width: 100%;
-            /* Adjust height for better viewing */
-            height: 300px; 
+            height: 300px;
             min-height: 300px;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.1);
             border: 1px solid #ddd;
         }
 
-        /* Header styling */
         h2 {
             text-align: center;
             margin: 20px 0;
@@ -56,7 +53,6 @@
 
         .leaflet-attribution-flag { display: none !important; }
 
-        /* Ensure Inter font is loaded/available */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     </style>
 </head>
@@ -73,10 +69,11 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://unpkg.com/leaflet.polylineDecorator@1.7.0/dist/leaflet.polylineDecorator.min.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+    <!-- ★ Fullscreen Plugin JS -->
+    <script src="https://unpkg.com/leaflet.fullscreen@1.6.0/Control.FullScreen.js"></script>
     
     <script>
-        // --- Custom Icons (Optional but recommended for clarity) ---
-        // Birth location (blue/default marker)
         const BirthIcon = L.icon({
             iconUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg width="24" height="40" viewBox="0 0 24 40" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c-6.63 0-12 5.37-12 12s12 28 12 28 12-21.37 12-28-5.37-12-12-12z" fill="#007bff"/><circle cx="12" cy="12" r="4" fill="white"/></svg>'),
             iconSize: [24, 40],
@@ -84,7 +81,6 @@
             popupAnchor: [0, -35]
         });
 
-        // Current location (green marker)
         const CurrentIcon = L.icon({
             iconUrl: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg width="24" height="40" viewBox="0 0 24 40" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c-6.63 0-12 5.37-12 12s12 28 12 28 12-21.37 12-28-5.37-12-12-12z" fill="#28a745"/><circle cx="12" cy="12" r="4" fill="white"/></svg>'),
             iconSize: [24, 40],
@@ -92,64 +88,51 @@
             popupAnchor: [0, -35]
         });
 
-
-        // --- Map Initialization ---
-        const map = L.map('map');
-        map.fitWorld();
-
-        // Add OpenStreetMap tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Initialize Marker Cluster Group with a small radius for precise grouping
-        const markerCluster = L.markerClusterGroup({
-            maxClusterRadius: 20 
+        // ★ Map with fullscreen control enabled
+        const map = L.map('map', {
+            fullscreenControl: true,
+            fullscreenControlOptions: { position: 'topleft' }
         });
 
-        // Helper function to robustly check if a value is a valid number for coordinates
+        map.fitWorld();
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        const markerCluster = L.markerClusterGroup({ maxClusterRadius: 20 });
+
         const isValidCoord = (c) => typeof c === 'number' && !isNaN(c) && c !== null;
 
-        // --- Data Fetching and Processing ---
-        // NOTE: Replace this mock data path with your actual path if needed.
         fetch('../data/family_data.json')
             .then(res => {
-                if (!res.ok) {
-                    throw new Error(`Failed to load data: ${res.statusText}`);
-                }
+                if (!res.ok) throw new Error(`Failed to load data: ${res.statusText}`);
                 return res.json();
             })
             .then(data => {
                 const allMarkers = [];
 
                 data.forEach(person => {
-                    // Extract and validate coordinates
                     const birthLat = parseFloat(person.LatitudeBirth);
                     const birthLng = parseFloat(person.LongitudeBirth);
                     const currentLat = parseFloat(person.LatitudeNow);
                     const currentLng = parseFloat(person.LongitudeNow);
+
                     const personId = person.PersonID;
                     const linkedFullName = `<a href="../person.html?id=${personId}" target="_blank"><strong>${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}</strong></a>`;
-                    
+
                     const hasBirth = isValidCoord(birthLat) && isValidCoord(birthLng);
                     const hasCurrent = isValidCoord(currentLat) && isValidCoord(currentLng);
-                    
-                    // Helper for person's full name in Russian
-                    const fullName = `<strong>${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}</strong>`;
+
                     const birthPlace = person.PlaceBirth || 'Неизвестно';
                     const currentPlace = person.PlaceNow || 'Неизвестно';
 
-                    // --- NEW LOGIC: Check for identical location ---
                     let isSameLocation = false;
                     if (hasBirth && hasCurrent) {
-                        // Check if latitude and longitude are numerically identical
                         isSameLocation = (birthLat === currentLat) && (birthLng === currentLng);
                     }
 
-
-                    // --- 1. Draw migration line (Polyline with Arrow Decorator) ---
-                    // Only draw line if BOTH locations are valid AND they are NOT the same.
                     if (hasBirth && hasCurrent && !isSameLocation) {
                         const birth = [birthLat, birthLng];
                         const current = [currentLat, currentLng];
@@ -161,20 +144,19 @@
                             dashArray: '8,8'
                         }).addTo(map);
 
-                        // Add arrow (decorator) to the line
                         if (typeof L.polylineDecorator !== 'undefined') {
                             L.polylineDecorator(line, {
                                 patterns: [
                                     {
-                                        offset: '100%', 
+                                        offset: '100%',
                                         repeat: 0,
                                         symbol: L.Symbol.arrow({
                                             pixelSize: 10,
                                             polygon: false,
                                             pathOptions: { 
-                                                stroke: true, 
-                                                color: '#007bff', 
-                                                weight: 2 
+                                                stroke: true,
+                                                color: '#007bff',
+                                                weight: 2
                                             }
                                         })
                                     }
@@ -182,60 +164,41 @@
                             }).addTo(map);
                         }
 
-                        // Popup for the migration line
                         line.bindPopup(`${linkedFullName}<br>${birthPlace} &rarr; ${currentPlace}`);
                     }
 
-                    // --- 2. Birth marker (SKIP IF SAME LOCATION) ---
-                    // Only draw the birth marker if they have MOVED OR if the current location is unknown
                     if (hasBirth && (!hasCurrent || !isSameLocation)) {
-                        const birth = [birthLat, birthLng];
-                        const birthPopup = `${linkedFullName}<br>Место рождения: ${birthPlace}<br>Дата рождения: ${person.BirthDate || 'Неизвестна'} <br>Текущее место: ${currentPlace}`;
-                        
-                        const birthMarker = L.marker(birth, { icon: BirthIcon }).bindPopup(birthPopup);
-                        markerCluster.addLayer(birthMarker);
-                        allMarkers.push(birthMarker);
+                        const marker = L.marker([birthLat, birthLng], { icon: BirthIcon })
+                            .bindPopup(`${linkedFullName}<br>Место рождения: ${birthPlace}<br>Дата рождения: ${person.BirthDate || 'Неизвестна'}<br>Текущее место: ${currentPlace}`);
+                        markerCluster.addLayer(marker);
+                        allMarkers.push(marker);
                     }
 
-                    // --- 3. Current location marker (MODIFIED POPUP) ---
                     if (hasCurrent) {
-                        let currentPopup = `${linkedFullName}<br>Место рождения: ${birthPlace}<br>Дата рождения: ${person.BirthDate || 'Неизвестна'} <br>Текущее место: ${currentPlace}`;
+                        let text = `${linkedFullName}<br>Место рождения: ${birthPlace}<br>Дата рождения: ${person.BirthDate || 'Неизвестна'} <br>Текущее место: ${currentPlace}`;
                         
-                        // INCLUDE BIRTH INFO IN CURRENT POPUP IF LOCATION IS THE SAME
                         if (isSameLocation) {
-                            currentPopup = `${linkedFullName}<br>
-                                Текущее место и место рождения совпадают: ${currentPlace}<br>Дата рождения: ${person.BirthDate || 'Неизвестна'}
-                            `;
+                            text = `${linkedFullName}<br>Текущее место и место рождения совпадают: ${currentPlace}<br>Дата рождения: ${person.BirthDate || 'Неизвестна'}`;
                         }
 
-                        const current = [currentLat, currentLng];
-                        const currentMarker = L.marker(current, { icon: CurrentIcon }).bindPopup(currentPopup);
-                        markerCluster.addLayer(currentMarker);
-                        allMarkers.push(currentMarker);
+                        const marker = L.marker([currentLat, currentLng], { icon: CurrentIcon }).bindPopup(text);
+                        markerCluster.addLayer(marker);
+                        allMarkers.push(marker);
                     }
                 });
 
-                // --- Map Adjustment ---
-                // Add cluster group to map
                 map.addLayer(markerCluster);
 
-                // Fit map to all generated markers
                 if (allMarkers.length > 0) {
-                    const group = L.featureGroup(allMarkers);
-                    // Pad(0.2) adds a little margin around the bounds
-                    map.fitBounds(group.getBounds().pad(0.2));
+                    map.fitBounds(L.featureGroup(allMarkers).getBounds().pad(0.2));
                 } else {
-                     // Default view if no valid markers exist
-                    map.setView([0, 0], 2); 
+                    map.setView([0, 0], 2);
                 }
-
             })
             .catch(err => {
-                console.error("Error loading or processing family_data.json:", err);
-                // Display error message on the map container
                 document.getElementById('map-container').innerHTML = `
                     <div style="padding: 20px; color: #dc3545; background: #ffe0e0; border-radius: 8px;">
-                        Ошибка загрузки данных: ${err.message}. Убедитесь, что файл ../data/family_data.json существует и имеет правильный формат.
+                        Ошибка загрузки данных: ${err.message}
                     </div>
                 `;
             });
