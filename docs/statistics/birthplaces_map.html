@@ -130,13 +130,13 @@
                     const currentLat = parseFloat(person.LatitudeNow);
                     const currentLng = parseFloat(person.LongitudeNow);
                     const personId = person.PersonID;
-                    const linkedFullName = `<a href="../person.html?id=${personId}" target="_blank"><strong>${person["Name-ru"] || person.Name} ${person["LastName-ru"] || person.LastName}</strong></a>`;
+                    const linkedFullName = `<a href="../person.html?id=${personId}" target="_blank"><strong>${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}</strong></a>`;
                     
                     const hasBirth = isValidCoord(birthLat) && isValidCoord(birthLng);
                     const hasCurrent = isValidCoord(currentLat) && isValidCoord(currentLng);
                     
                     // Helper for person's full name in Russian
-                    const fullName = `<strong>${person["Name-ru"] || person.Name} ${person["LastName-ru"] || person.LastName}</strong>`;
+                    const fullName = `<strong>${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}</strong>`;
                     const birthPlace = person.PlaceBirth || 'Неизвестно';
                     const currentPlace = person.PlaceNow || 'Неизвестно';
 
