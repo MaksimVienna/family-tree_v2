@@ -15,10 +15,15 @@
     "ChildID": "23",
     "Generation": 4,
     "PlaceBirth": "Палатка, Магаданская область, СССР",
+    "PlaceBirth_current": "Палатка, Магаданская область, Россия",
     "PlaceNow": "Шахты, Ростовская область, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 60.1022208,
+    "LongitudeBirth": 150.9370006,
+    "LatitudeNow": 47.7094622,
+    "LongitudeNow": 40.2154859
   },
   {
     "PersonID": 2,
@@ -35,11 +40,16 @@
     "SiblingID": "",
     "ChildID": "23",
     "Generation": 4,
-    "PlaceBirth": "Терней, Приморский край, Россия",
+    "PlaceBirth": "Терней, Приморский край, СССР",
+    "PlaceBirth_current": "Терней, Приморский край, Россия",
     "PlaceNow": "Находка, Приморский край, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 45.0504046,
+    "LongitudeBirth": 136.6137293,
+    "LatitudeNow": 42.8246489,
+    "LongitudeNow": 132.8926
   },
   {
     "PersonID": 3,
@@ -57,10 +67,15 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "Палатка, Магаданская область, СССР",
+    "PlaceBirth_current": "Палатка, Магаданская область, Россия",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "Science, engineering",
     "Photo": "id3-sergey.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 60.1022208,
+    "LongitudeBirth": 150.9370006,
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 4,
@@ -78,10 +93,15 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "Магадан, Россия",
+    "PlaceBirth_current": "Магадан, Россия",
     "PlaceNow": "Сокол, Магаданская область, Россия",
     "About": "Спортсмен",
     "Photo": "id4-dima.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 59.5645655,
+    "LongitudeBirth": 150.8078832,
+    "LatitudeNow": 59.9186056,
+    "LongitudeNow": 150.7451794
   },
   {
     "PersonID": 5,
@@ -99,10 +119,15 @@
     "ChildID": "7",
     "Generation": 5,
     "PlaceBirth": "Палатка, Магаданская область, СССР",
+    "PlaceBirth_current": "Палатка, Магаданская область, Россия",
     "PlaceNow": "Villach, Austria",
     "About": "Science, engineering",
     "Photo": "id5-maksim.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 60.1022208,
+    "LongitudeBirth": 150.9370006,
+    "LatitudeNow": 46.6167284,
+    "LongitudeNow": 13.8500268
   },
   {
     "PersonID": 6,
@@ -120,10 +145,15 @@
     "ChildID": "7",
     "Generation": 5,
     "PlaceBirth": "Петропавловск, Казахстан",
+    "PlaceBirth_current": "Петропавловск, Казахстан",
     "PlaceNow": "Villach, Austria",
     "About": "test",
     "Photo": "id6-sophia.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 54.8668104,
+    "LongitudeBirth": 69.1334984,
+    "LatitudeNow": 46.6167284,
+    "LongitudeNow": 13.8500268
   },
   {
     "PersonID": 7,
@@ -141,10 +171,15 @@
     "ChildID": "",
     "Generation": 6,
     "PlaceBirth": "Новосибирск, Россия",
+    "PlaceBirth_current": "Новосибирск, Россия",
     "PlaceNow": "Villach, Austria",
     "About": "test",
     "Photo": "id7-sviatik.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 55.0288307,
+    "LongitudeBirth": 82.9226887,
+    "LatitudeNow": 46.6167284,
+    "LongitudeNow": 13.8500268
   },
   {
     "PersonID": 8,
@@ -162,10 +197,13 @@
     "ChildID": "12, 13",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Красноярск, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 9,
@@ -183,10 +221,13 @@
     "ChildID": "12, 13",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Красноярск, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 10,
@@ -204,10 +245,13 @@
     "ChildID": "6, 8",
     "Generation": 4,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Барнаул, Россия",
     "About": "Science, engineering",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 11,
@@ -225,10 +269,13 @@
     "ChildID": "6, 8",
     "Generation": 4,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Барнаул, Россия",
     "About": "test",
     "Photo": "id11-milana.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 12,
@@ -246,10 +293,13 @@
     "ChildID": "",
     "Generation": 6,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Красноярск, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 13,
@@ -267,10 +317,13 @@
     "ChildID": "",
     "Generation": 6,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Красноярск, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 14,
@@ -288,10 +341,15 @@
     "ChildID": "16, 17",
     "Generation": 4,
     "PlaceBirth": "Ленинград, СССР",
+    "PlaceBirth_current": "Санкт-Петербург, Россия",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "id14-olga.png",
-    "Other_photo": "id14-olga_details.png"
+    "Other_photo": "id14-olga_details.png",
+    "LatitudeBirth": 59.9606739,
+    "LongitudeBirth": 30.1586551,
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 15,
@@ -309,10 +367,15 @@
     "ChildID": "16, 17",
     "Generation": 4,
     "PlaceBirth": "Ленинград, СССР",
+    "PlaceBirth_current": "Санкт-Петербург, Россия",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 59.9606739,
+    "LongitudeBirth": 30.1586551,
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 16,
@@ -330,10 +393,15 @@
     "ChildID": "25, 26",
     "Generation": 5,
     "PlaceBirth": "Ленинград, СССР",
+    "PlaceBirth_current": "Санкт-Петербург, Россия",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "id16-anna.png",
-    "Other_photo": "id16_id24_id25_id26_details.png"
+    "Other_photo": "id16_id24_id25_id26_details.png",
+    "LatitudeBirth": 59.9606739,
+    "LongitudeBirth": 30.1586551,
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 17,
@@ -351,10 +419,15 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "Санкт-Петербург, Россия",
+    "PlaceBirth_current": "Санкт-Петербург, Россия",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 59.9606739,
+    "LongitudeBirth": 30.1586551,
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 18,
@@ -372,10 +445,15 @@
     "ChildID": "20",
     "Generation": 4,
     "PlaceBirth": "Галле, ГДР",
+    "PlaceBirth_current": "Halle, Germany",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "id18-sergey.png",
-    "Other_photo": "id18-sergey_details.png, id18-sergey_details2.png"
+    "Other_photo": "id18-sergey_details.png, id18-sergey_details2.png",
+    "LatitudeBirth": 51.4824354,
+    "LongitudeBirth": 11.9712985,
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 19,
@@ -393,10 +471,13 @@
     "ChildID": "20",
     "Generation": 4,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 20,
@@ -414,10 +495,13 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 21,
@@ -435,10 +519,15 @@
     "ChildID": "3, 4, 5",
     "Generation": 4,
     "PlaceBirth": "Палатка, Магаданская область, СССР",
+    "PlaceBirth_current": "Палатка, Магаданская область, Россия",
     "PlaceNow": "Сокол, Магаданская область, Россия",
     "About": "Science, engineering",
     "Photo": "id21-leonid.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 60.1022208,
+    "LongitudeBirth": 150.9370006,
+    "LatitudeNow": 59.9186056,
+    "LongitudeNow": 150.7451794
   },
   {
     "PersonID": 22,
@@ -456,10 +545,15 @@
     "ChildID": "3, 4, 5",
     "Generation": 4,
     "PlaceBirth": "Галле, ГДР",
+    "PlaceBirth_current": "Halle, Germany",
     "PlaceNow": "Сокол, Магаданская область, Россия",
     "About": "Тренер",
     "Photo": "id22-elena.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 51.4824354,
+    "LongitudeBirth": 11.9712985,
+    "LatitudeNow": 59.9186056,
+    "LongitudeNow": 150.7451794
   },
   {
     "PersonID": 23,
@@ -477,10 +571,13 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 24,
@@ -498,10 +595,13 @@
     "ChildID": "25, 26",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "id24-anton.png",
-    "Other_photo": "id16_id24_id25_id26_details.png"
+    "Other_photo": "id16_id24_id25_id26_details.png",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 25,
@@ -519,10 +619,13 @@
     "ChildID": "",
     "Generation": 6,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "id25-unia.png",
-    "Other_photo": "id16_id24_id25_id26_details.png"
+    "Other_photo": "id16_id24_id25_id26_details.png",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 26,
@@ -540,10 +643,13 @@
     "ChildID": "",
     "Generation": 6,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "id26-elina.png",
-    "Other_photo": "id16_id24_id25_id26_details.png"
+    "Other_photo": "id16_id24_id25_id26_details.png",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 27,
@@ -561,10 +667,15 @@
     "ChildID": "1, 21",
     "Generation": 3,
     "PlaceBirth": "Хабаровск, Хабаровский край, СССР",
+    "PlaceBirth_current": "Хабаровск, Хабаровский край, Россия",
     "PlaceNow": "Хасын, Магаданская область, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 48.4812568,
+    "LongitudeBirth": 135.0762968,
+    "LatitudeNow": 60.087212,
+    "LongitudeNow": 150.889679
   },
   {
     "PersonID": 28,
@@ -582,10 +693,13 @@
     "ChildID": "1, 21",
     "Generation": 3,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Крупки, Беларусь",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 29,
@@ -603,10 +717,13 @@
     "ChildID": "22, 14, 18",
     "Generation": 3,
     "PlaceBirth": "Ляски, Минская область, СССР",
+    "PlaceBirth_current": "Ляски, Минская область, Беларусь",
     "PlaceNow": "",
     "About": "test",
     "Photo": "id29-lilina.png",
-    "Other_photo": "id31_id33_id34_id35_id38_id29.png"
+    "Other_photo": "id31_id33_id34_id35_id38_id29.png",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 30,
@@ -624,10 +741,13 @@
     "ChildID": "22, 14, 18",
     "Generation": 3,
     "PlaceBirth": "Пашково, Вологодская область, СССР",
+    "PlaceBirth_current": "Пашково, Вологодская область, Россия",
     "PlaceNow": "",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 31,
@@ -645,10 +765,13 @@
     "ChildID": "29, 33, 34, 35",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "test",
     "Photo": "id31-sofia.png",
-    "Other_photo": "id31_id33_id34_id35_id38_id29.png"
+    "Other_photo": "id31_id33_id34_id35_id38_id29.png",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 32,
@@ -666,10 +789,13 @@
     "ChildID": "29, 33, 34, 35",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "test",
     "Photo": "id32-vasilii.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 33,
@@ -687,17 +813,20 @@
     "ChildID": "37",
     "Generation": 3,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "Год рождения неточен.",
     "Photo": "id33-fedor.png",
-    "Other_photo": "id31_id33_id34_id35_id38_id29.png"
+    "Other_photo": "id31_id33_id34_id35_id38_id29.png",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 34,
     "Name": "Olga",
     "Name-ru": "Ольга",
     "LastName-ru": "Григорьева",
-    "Maiden_name": "Лапцевич",
+    "Maiden_name": "Лёля Лапцевич",
     "Gender": "F",
     "BirthDate": "30.09.1925",
     "DeathDate": "?",
@@ -708,10 +837,13 @@
     "ChildID": "39, 56",
     "Generation": 3,
     "PlaceBirth": "",
-    "PlaceNow": "Lviv,Ukraina",
+    "PlaceBirth_current": "",
+    "PlaceNow": "Lviv, Ukraina",
     "About": "test",
     "Photo": "id34-lelia.png",
-    "Other_photo": "id31_id33_id34_id35_id38_id29.png"
+    "Other_photo": "id31_id33_id34_id35_id38_id29.png",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 35,
@@ -729,10 +861,13 @@
     "ChildID": "45, 46",
     "Generation": 3,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "id35-nikolay.png",
-    "Other_photo": "id31_id33_id34_id35_id38_id29.png"
+    "Other_photo": "id31_id33_id34_id35_id38_id29.png",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 36,
@@ -750,10 +885,13 @@
     "ChildID": "37",
     "Generation": 3,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 37,
@@ -771,10 +909,13 @@
     "ChildID": "54, 55",
     "Generation": 4,
     "PlaceBirth": "",
-    "PlaceNow": "Новгород",
+    "PlaceBirth_current": "",
+    "PlaceNow": "Новгород, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 38,
@@ -792,10 +933,15 @@
     "ChildID": "39, 56",
     "Generation": 3,
     "PlaceBirth": "Вологодская область, Россия",
-    "PlaceNow": "Lviv,Ukraina",
+    "PlaceBirth_current": "Вологодская область, Россия",
+    "PlaceNow": "Lviv, Ukraina",
     "About": "Отравлен угарным газом бандеровцами после войны",
     "Photo": "id38-ivan.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": 60.0391461,
+    "LongitudeBirth": 43.1215213,
+    "LatitudeNow": 49.841952,
+    "LongitudeNow": 24.0315921
   },
   {
     "PersonID": 39,
@@ -813,10 +959,13 @@
     "ChildID": "41, 57",
     "Generation": 4,
     "PlaceBirth": "",
-    "PlaceNow": "New-York",
+    "PlaceBirth_current": "",
+    "PlaceNow": "New-York, USA",
     "About": "test",
     "Photo": "id39-galina.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 40,
@@ -834,10 +983,13 @@
     "ChildID": "41, 57",
     "Generation": 4,
     "PlaceBirth": "",
-    "PlaceNow": "New-York",
+    "PlaceBirth_current": "",
+    "PlaceNow": "New-York, USA",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 41,
@@ -855,10 +1007,13 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "",
-    "PlaceNow": "New-York",
+    "PlaceBirth_current": "",
+    "PlaceNow": "New-York, USA",
     "About": "test",
     "Photo": "id41_konstantin.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 42,
@@ -876,10 +1031,13 @@
     "ChildID": "",
     "Generation": 6,
     "PlaceBirth": "",
-    "PlaceNow": "New-York",
+    "PlaceBirth_current": "",
+    "PlaceNow": "New-York, USA",
     "About": "test",
     "Photo": "id42-luka.jpg",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 43,
@@ -897,10 +1055,13 @@
     "ChildID": "42",
     "Generation": 5,
     "PlaceBirth": "",
-    "PlaceNow": "New-York",
+    "PlaceBirth_current": "",
+    "PlaceNow": "New-York, USA",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 44,
@@ -918,10 +1079,13 @@
     "ChildID": "45, 46",
     "Generation": 3,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 45,
@@ -939,10 +1103,13 @@
     "ChildID": "47",
     "Generation": 4,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 46,
@@ -960,10 +1127,13 @@
     "ChildID": "49, 50",
     "Generation": 4,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 47,
@@ -981,10 +1151,13 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 48,
@@ -1002,10 +1175,13 @@
     "ChildID": "47",
     "Generation": 4,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 49,
@@ -1023,10 +1199,13 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "Заведующая отделением скорой помощи",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 50,
@@ -1044,10 +1223,13 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Сербия",
     "About": "Спорт",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 51,
@@ -1065,10 +1247,13 @@
     "ChildID": "32, 52",
     "Generation": 1,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Беларусь",
     "About": "Фотография Каземира сделана  в г. Ровны в 1928 году. Год рождения неточен",
     "Photo": "id51-kazimir.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 52,
@@ -1086,10 +1271,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "Наша мама о нём отзывалась как об очень мудром и умном человеком.",
     "Photo": "id52-fedor.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 53,
@@ -1107,10 +1295,13 @@
     "ChildID": "54, 55",
     "Generation": 4,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "Санкт-Петербург, Россия",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 54,
@@ -1128,10 +1319,13 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 55,
@@ -1149,10 +1343,13 @@
     "ChildID": "",
     "Generation": 5,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "test",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 56,
@@ -1170,10 +1367,13 @@
     "ChildID": "",
     "Generation": 4,
     "PlaceBirth": "",
-    "PlaceNow": "Новгород",
+    "PlaceBirth_current": "",
+    "PlaceNow": "Новгород, Россия",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 57,
@@ -1191,10 +1391,13 @@
     "ChildID": "42",
     "Generation": 5,
     "PlaceBirth": "",
-    "PlaceNow": "New-York",
+    "PlaceBirth_current": "",
+    "PlaceNow": "New-York, USA",
     "About": "",
     "Photo": "id57-viktor.png",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 58,
@@ -1212,10 +1415,13 @@
     "ChildID": "32, 52",
     "Generation": 1,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 59,
@@ -1233,10 +1439,13 @@
     "ChildID": "31",
     "Generation": 1,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 60,
@@ -1254,10 +1463,13 @@
     "ChildID": "31",
     "Generation": 1,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 61,
@@ -1275,10 +1487,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 62,
@@ -1296,10 +1511,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 63,
@@ -1317,10 +1535,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 64,
@@ -1338,10 +1559,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 65,
@@ -1359,10 +1583,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 66,
@@ -1380,10 +1607,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 67,
@@ -1401,10 +1631,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 68,
@@ -1422,10 +1655,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 69,
@@ -1443,10 +1679,13 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   },
   {
     "PersonID": 70,
@@ -1464,9 +1703,12 @@
     "ChildID": "",
     "Generation": 2,
     "PlaceBirth": "",
+    "PlaceBirth_current": "",
     "PlaceNow": "",
     "About": "",
     "Photo": "",
-    "Other_photo": ""
+    "Other_photo": "",
+    "LatitudeBirth": "",
+    "LongitudeBirth": ""
   }
 ]

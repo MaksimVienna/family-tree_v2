@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Кто где сейчас</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS (local) -->
+  <link rel="stylesheet" href="../styles/leaflet.css">
+
+  <style>
+    /* Reset body and html to prevent full-width stretching */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      font-family: Inter, sans-serif;
+    }
+
+    /* Wrapper centers the map container horizontally */
+    .wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    /* Map container: restricts width to roughly half the tree */
+    #map-container {
+      width: 100%;        /* half of tree width */
+      max-width: 800px;  /* optional: don't grow too wide */
+      min-width: 300px;  /* optional: don't shrink too much */
+      box-sizing: border-box;
+    }
+
+    /* Map fills the container exactly */
+    #map {
+      width: 100%;
+      height: 300px; 
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: block; /* prevents extra spacing */
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .leaflet-attribution-flag { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <h2>Кто где родился</h2>
+
+  <div class="wrapper">
+    <div id="map-container">
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS (local) -->
+  <script src="../js/leaflet.js"></script>
+
+  <script>
+  // Initialize the map
+  const map = L.map('map');
+
+  // Start zoomed out to show the whole Earth
+  map.fitWorld();
+
+  // Use a tile provider without the Ukrainian flag (OpenStreetMap DE)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(map);
+
+
+
+
+  // Load family data and add markers
+  fetch('../data/family_data.json')
+    .then(response => response.json())
+    .then(data => {
+      const markers = [];
+      data.forEach(person => {
+        const lat = person.LatitudeBirth;
+        const lon = person.LongitudeBirth;
+        if (lat && lon) {
+          const marker = L.marker([lat, lon]).addTo(map);
+          const popupContent = `
+            <strong>${person["Name-ru"]} ${person["LastName-ru"]}</strong><br>
+            ${person.PlaceBirth}<br>
+            ${person.BirthDate ? "Birth: " + person.BirthDate : ""}
+          `;
+          marker.bindPopup(popupContent);
+          markers.push(marker);
+        }
+      });
+
+      // Fit map to markers if any exist
+      if (markers.length > 0) {
+        const group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.2));
+      }
+    })
+    .catch(err => console.error("Error loading family_data.json:", err));
+</script>
+
+
+</body>
+</html>
