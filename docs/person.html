@@ -128,7 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const folderId = `id${person.PersonID}_${person.Name.toLowerCase()}`;
 
       // Header and photo
-      document.getElementById('name').textContent = `${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""} (${person["Maiden_name"] || ""})`;
+      if (person.Gender == "F")       document.getElementById('name').textContent = `${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""} (${person["Maiden_name"] || ""})`;
+      else                          document.getElementById('name').textContent = `${person["Name-ru"] || person.Name} ${person["LastName-ru"] || ""}`;
       const mainPhoto = document.getElementById('main-photo');
       mainPhoto.src = person.Photo && person.Photo !== "" ? `images/${person.Photo}` : "https://placehold.co/200x200?text=No+Photo";
 

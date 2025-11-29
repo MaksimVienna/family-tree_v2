@@ -203,7 +203,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 56.0091173,
+    "LongitudeNow": 92.872586
   },
   {
     "PersonID": 9,
@@ -227,7 +229,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 56.0091173,
+    "LongitudeNow": 92.872586
   },
   {
     "PersonID": 10,
@@ -251,7 +255,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 53.3475493,
+    "LongitudeNow": 83.7788448
   },
   {
     "PersonID": 11,
@@ -275,7 +281,9 @@
     "Photo": "id11-milana.png",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 53.3475493,
+    "LongitudeNow": 83.7788448
   },
   {
     "PersonID": 12,
@@ -299,7 +307,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 56.0091173,
+    "LongitudeNow": 92.872586
   },
   {
     "PersonID": 13,
@@ -323,7 +333,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 56.0091173,
+    "LongitudeNow": 92.872586
   },
   {
     "PersonID": 14,
@@ -477,7 +489,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 20,
@@ -501,7 +515,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 21,
@@ -577,7 +593,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 24,
@@ -601,7 +619,9 @@
     "Photo": "id24-anton.png",
     "Other_photo": "id16_id24_id25_id26_details.png",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 25,
@@ -625,7 +645,9 @@
     "Photo": "id25-unia.png",
     "Other_photo": "id16_id24_id25_id26_details.png",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 26,
@@ -649,7 +671,9 @@
     "Photo": "id26-elina.png",
     "Other_photo": "id16_id24_id25_id26_details.png",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 27,
@@ -699,7 +723,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 54.317196,
+    "LongitudeNow": 29.139851
   },
   {
     "PersonID": 29,
@@ -722,6 +748,8 @@
     "About": "test",
     "Photo": "id29-lilina.png",
     "Other_photo": "id31_id33_id34_id35_id38_id29.png",
+    "LatitudeBirth": 54.6730462,
+    "LongitudeBirth": 26.8544116,
     "LatitudeNow": "",
     "LongitudeNow": ""
   },
@@ -746,6 +774,8 @@
     "About": "test",
     "Photo": "",
     "Other_photo": "",
+    "LatitudeBirth": 60.7193026,
+    "LongitudeBirth": 36.2311247,
     "LatitudeNow": "",
     "LongitudeNow": ""
   },
@@ -771,7 +801,9 @@
     "Photo": "id31-sofia.png",
     "Other_photo": "id31_id33_id34_id35_id38_id29.png",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 32,
@@ -795,7 +827,9 @@
     "Photo": "id32-vasilii.png",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 33,
@@ -819,7 +853,9 @@
     "Photo": "id33-fedor.png",
     "Other_photo": "id31_id33_id34_id35_id38_id29.png",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 34,
@@ -843,7 +879,9 @@
     "Photo": "id34-lelia.png",
     "Other_photo": "id31_id33_id34_id35_id38_id29.png",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 49.841952,
+    "LongitudeNow": 24.0315921
   },
   {
     "PersonID": 35,
@@ -867,7 +905,9 @@
     "Photo": "id35-nikolay.png",
     "Other_photo": "id31_id33_id34_id35_id38_id29.png",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 36,
@@ -891,7 +931,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 37,
@@ -915,7 +957,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 58.5209862,
+    "LongitudeNow": 31.2757862
   },
   {
     "PersonID": 38,
@@ -965,7 +1009,9 @@
     "Photo": "id39-galina.png",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 40.7127281,
+    "LongitudeNow": -74.0060152
   },
   {
     "PersonID": 40,
@@ -989,7 +1035,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 40.7127281,
+    "LongitudeNow": -74.0060152
   },
   {
     "PersonID": 41,
@@ -1013,7 +1061,9 @@
     "Photo": "id41_konstantin.png",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 40.7127281,
+    "LongitudeNow": -74.0060152
   },
   {
     "PersonID": 42,
@@ -1037,7 +1087,9 @@
     "Photo": "id42-luka.jpg",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 40.7127281,
+    "LongitudeNow": -74.0060152
   },
   {
     "PersonID": 43,
@@ -1061,7 +1113,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 40.7127281,
+    "LongitudeNow": -74.0060152
   },
   {
     "PersonID": 44,
@@ -1085,7 +1139,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 45,
@@ -1109,7 +1165,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 46,
@@ -1133,7 +1191,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 47,
@@ -1157,7 +1217,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 48,
@@ -1181,7 +1243,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 49,
@@ -1205,7 +1269,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 50,
@@ -1229,7 +1295,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 44.0243229,
+    "LongitudeNow": 21.0765743
   },
   {
     "PersonID": 51,
@@ -1253,7 +1321,9 @@
     "Photo": "id51-kazimir.png",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 53.4250605,
+    "LongitudeNow": 27.6971358
   },
   {
     "PersonID": 52,
@@ -1277,7 +1347,9 @@
     "Photo": "id52-fedor.png",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 53,
@@ -1301,7 +1373,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 59.9606739,
+    "LongitudeNow": 30.1586551
   },
   {
     "PersonID": 54,
@@ -1325,7 +1399,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 55,
@@ -1349,7 +1425,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 56,
@@ -1373,7 +1451,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 58.5209862,
+    "LongitudeNow": 31.2757862
   },
   {
     "PersonID": 57,
@@ -1397,7 +1477,9 @@
     "Photo": "id57-viktor.png",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": 40.7127281,
+    "LongitudeNow": -74.0060152
   },
   {
     "PersonID": 58,
@@ -1421,7 +1503,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 59,
@@ -1445,7 +1529,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 60,
@@ -1469,7 +1555,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 61,
@@ -1493,7 +1581,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 62,
@@ -1517,7 +1607,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 63,
@@ -1541,7 +1633,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 64,
@@ -1565,7 +1659,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 65,
@@ -1589,7 +1685,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 66,
@@ -1613,7 +1711,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 67,
@@ -1637,7 +1737,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 68,
@@ -1661,7 +1763,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 69,
@@ -1685,7 +1789,9 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   },
   {
     "PersonID": 70,
@@ -1709,6 +1815,8 @@
     "Photo": "",
     "Other_photo": "",
     "LatitudeBirth": "",
-    "LongitudeBirth": ""
+    "LongitudeBirth": "",
+    "LatitudeNow": "",
+    "LongitudeNow": ""
   }
 ]
