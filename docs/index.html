@@ -87,6 +87,7 @@
 function resizeMapIframe() {
     const iframe = document.getElementById("birthplaces-map-iframe");
     iframe.style.height = Math.min(window.innerHeight * 0.9, 700) + "px";
+    iframe.style.width = Math.min(1200, 1200) + "px";
 }
 
 window.addEventListener("resize", resizeMapIframe);
